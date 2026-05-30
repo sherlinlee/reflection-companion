@@ -4,6 +4,15 @@ export const fieldClass = "spark-field";
 
 export const cardClass = "spark-card";
 
+/** Sign in / Create account — 30% smaller than default cards */
+export const authFormClass = "spark-card spark-auth-form";
+
+export const authTitleClass = "spark-auth-title";
+
+export const authFieldClass = "spark-auth-field";
+
+export const authCtaClass = "spark-auth-cta w-full";
+
 export const panelHighlightClass = "spark-panel-highlight";
 
 export const listPanelClass = "spark-list-panel";

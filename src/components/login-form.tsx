@@ -6,8 +6,10 @@ import { signIn, signUp } from "@/app/actions/auth";
 import { BrandMark } from "@/components/brand-mark";
 import { Button } from "@/components/ui/button";
 import {
-  cardClass,
-  fieldClass,
+  authCtaClass,
+  authFieldClass,
+  authFormClass,
+  authTitleClass,
   pageEnterClass,
   sparkToolCardClass,
   staggerClass,
@@ -75,45 +77,40 @@ export function LoginForm() {
           </p>
         )}
 
-        <form action={signInAction} className={`${cardClass} space-y-4`}>
-          <h2 className="font-heading text-xl font-semibold text-[#0F1A18]">
-            Sign in
-          </h2>
+        <form action={signInAction} className={authFormClass}>
+          <h2 className={authTitleClass}>Sign in</h2>
           <input
             name="email"
             type="email"
             required
             placeholder="Email"
-            className={fieldClass}
+            className={authFieldClass}
           />
           <input
             name="password"
             type="password"
             required
             placeholder="Password"
-            className={fieldClass}
+            className={authFieldClass}
           />
           <Button
             type="submit"
             variant="cta"
-            className="w-full"
-            size="lg"
+            className={authCtaClass}
             disabled={signInPending}
           >
             {signInPending ? "Signing in…" : "Sign in"}
           </Button>
         </form>
 
-        <form action={signUpAction} className={`${cardClass} space-y-4`}>
-          <h2 className="font-heading text-xl font-semibold text-[#0F1A18]">
-            Create account
-          </h2>
+        <form action={signUpAction} className={authFormClass}>
+          <h2 className={authTitleClass}>Create account</h2>
           <input
             name="email"
             type="email"
             required
             placeholder="Email"
-            className={fieldClass}
+            className={authFieldClass}
           />
           <input
             name="password"
@@ -121,13 +118,12 @@ export function LoginForm() {
             required
             minLength={6}
             placeholder="Password (min 6 characters)"
-            className={fieldClass}
+            className={authFieldClass}
           />
           <Button
             type="submit"
             variant="outline"
             className="w-full border-[#1A7A6E]/30 text-[#1A7A6E] hover:bg-[#EAF5F3]"
-            size="lg"
             disabled={signUpPending}
           >
             {signUpPending ? "Creating…" : "Create account"}
