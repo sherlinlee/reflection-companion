@@ -1,0 +1,184 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Matches https://sparkbysher.com */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: ui-monospace, monospace;
+  --font-heading: var(--font-heading);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  color-scheme: light only;
+  --spark-teal: #1a7a6e;
+  --spark-teal-mid: #2a9d8f;
+  --spark-teal-light: #a8d5cf;
+  --spark-teal-pale: #eaf5f3;
+  --spark-dark: #0f1a18;
+  --spark-mid: #2c3e3b;
+  --spark-text: #3d4f4c;
+  --spark-muted: #7a9490;
+  --spark-warm: #f7f4ef;
+  --spark-white: #ffffff;
+
+  --background: var(--spark-warm);
+  --foreground: var(--spark-text);
+  --card: var(--spark-white);
+  --card-foreground: var(--spark-text);
+  --popover: var(--spark-white);
+  --popover-foreground: var(--spark-text);
+  --primary: var(--spark-teal);
+  --primary-foreground: var(--spark-white);
+  --secondary: var(--spark-teal-pale);
+  --secondary-foreground: var(--spark-dark);
+  --muted: var(--spark-teal-pale);
+  --muted-foreground: var(--spark-muted);
+  --accent: var(--spark-teal-pale);
+  --accent-foreground: var(--spark-teal);
+  --destructive: #b54a4a;
+  --border: rgba(26, 122, 110, 0.14);
+  --input: rgba(26, 122, 110, 0.2);
+  --ring: var(--spark-teal-mid);
+  --chart-1: var(--spark-teal);
+  --chart-2: var(--spark-teal-mid);
+  --chart-3: var(--spark-teal-light);
+  --chart-4: var(--spark-muted);
+  --chart-5: var(--spark-dark);
+  --radius: 0.75rem;
+  --sidebar: var(--spark-warm);
+  --sidebar-foreground: var(--spark-text);
+  --sidebar-primary: var(--spark-teal);
+  --sidebar-primary-foreground: var(--spark-white);
+  --sidebar-accent: var(--spark-teal-pale);
+  --sidebar-accent-foreground: var(--spark-dark);
+  --sidebar-border: rgba(26, 122, 110, 0.14);
+  --sidebar-ring: var(--spark-teal-mid);
+  --spark-cta: #e8a045;
+  --spark-cta-hover: #f0b05a;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background: var(--spark-warm) !important;
+    color: var(--spark-text) !important;
+  }
+  h1,
+  h2,
+  h3,
+  .font-heading {
+    color: var(--spark-dark) !important;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans), Georgia, serif;
+    line-height: 1.85;
+    -webkit-font-smoothing: antialiased;
+    background-image: radial-gradient(
+      ellipse 70% 45% at 50% 0%,
+      rgba(234, 245, 243, 0.85) 0%,
+      transparent 65%
+    );
+    background-attachment: fixed;
+  }
+  html {
+    font-family: var(--font-sans), Georgia, serif;
+  }
+  h1,
+  h2,
+  h3,
+  .font-heading {
+    font-family: var(--font-heading), Georgia, serif;
+    color: var(--spark-dark);
+  }
+}
+
+/* sparkbysher.com component styles */
+.spark-section-label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--spark-teal-mid);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.spark-section-label::after {
+  content: "";
+  flex: 1;
+  height: 0.5px;
+  background: var(--spark-teal-light);
+}
+
+.spark-pull-quote {
+  border-left: 3px solid var(--spark-teal);
+  padding: 18px 24px;
+  background: var(--spark-teal-pale);
+  border-radius: 0 8px 8px 0;
+  font-family: var(--font-heading), Georgia, serif;
+  font-size: clamp(17px, 3vw, 21px);
+  font-style: italic;
+  color: var(--spark-teal);
+  line-height: 1.55;
+  text-align: left;
+}
+
+.spark-claim-banner {
+  background: var(--spark-teal-pale);
+  border-left: 3px solid var(--spark-teal);
+  border-radius: 0 8px 8px 0;
+  padding: 18px 24px;
+  font-size: 14px;
+  color: var(--spark-teal);
+  font-style: italic;
+  line-height: 1.75;
+}
