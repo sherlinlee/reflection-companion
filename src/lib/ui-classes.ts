@@ -38,7 +38,9 @@ export const linkArrowClass = "spark-link-arrow";
 /** Matches .pull-quote on sparkbysher.com */
 export const pullQuoteClass = "spark-pull-quote";
 
-/** Login intro — small, readable body text */
+/** Login intro placecard + text */
+export const taglineCardClass = "spark-tagline-card";
+
 export const taglineClass = "spark-tagline";
 
 export const sparkToolCardClass = "spark-tool-card";

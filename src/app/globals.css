@@ -172,18 +172,70 @@
   text-align: left;
 }
 
-/* Login tagline — half pull-quote size, Lora, not italic (easier to read) */
-.spark-tagline {
+/* Login tagline placecard */
+.spark-tagline-card {
+  position: relative;
   margin: 0 auto;
   max-width: 28rem;
-  padding: 0 0.5rem;
+  padding: 1.125rem 1.375rem 1.25rem;
+  border-radius: 14px;
+  border: 1px solid rgba(168, 213, 207, 0.55);
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(234, 245, 243, 0.92) 55%,
+    rgba(255, 255, 255, 0.96) 100%
+  );
+  box-shadow:
+    0 2px 12px rgba(26, 122, 110, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  text-align: center;
+  transition:
+    box-shadow 0.3s ease,
+    border-color 0.3s ease,
+    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.spark-tagline-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 3rem;
+  height: 2px;
+  transform: translate(-50%, -1px);
+  border-radius: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--spark-teal-mid),
+    transparent
+  );
+}
+
+.spark-tagline-card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(42, 157, 143, 0.35);
+  box-shadow: 0 8px 28px rgba(26, 122, 110, 0.11);
+}
+
+.spark-tagline-card-mark {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 9px;
+  line-height: 1;
+  color: var(--spark-teal);
+  letter-spacing: 0.2em;
+}
+
+.spark-tagline {
+  margin: 0;
   font-family: var(--font-sans), Georgia, serif;
   font-size: clamp(0.6875rem, 1.75vw, 0.75rem);
   font-style: normal;
   font-weight: 400;
   line-height: 1.65;
   color: var(--spark-text);
-  text-align: center;
 }
 
 .spark-tool-card {
