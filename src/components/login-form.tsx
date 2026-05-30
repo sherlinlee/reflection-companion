@@ -13,6 +13,7 @@ import {
   pageEnterClass,
   sparkToolCardClass,
   staggerClass,
+  taglineCardClass,
   taglineClass,
 } from "@/lib/ui-classes";
 
@@ -42,10 +43,15 @@ export function LoginForm() {
           <div className="flex justify-center">
             <BrandMark variant="login" />
           </div>
-          <p className={taglineClass}>
-            Revisit children&apos;s documentation through multiple lenses. You
-            remain the thinker—we help you notice.
-          </p>
+          <div className={taglineCardClass}>
+            <span className="spark-tagline-card-mark" aria-hidden>
+              ✦
+            </span>
+            <p className={taglineClass}>
+              Revisit children&apos;s documentation through multiple lenses. You
+              remain the thinker—we help you notice.
+            </p>
+          </div>
 
           <a
             href="https://sparkbysher.onrender.com"

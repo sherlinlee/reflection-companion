@@ -172,18 +172,72 @@
   text-align: left;
 }
 
-/* Login tagline — small, readable body text */
-.spark-tagline {
+/* Login tagline — placecard on mobile, plain on desktop */
+.spark-tagline-card {
   margin: 0 auto;
   max-width: 28rem;
-  padding: 0 0.5rem;
+  text-align: center;
+}
+
+.spark-tagline {
+  margin: 0;
   font-family: var(--font-sans), Georgia, serif;
   font-size: clamp(0.6875rem, 1.75vw, 0.75rem);
   font-style: normal;
   font-weight: 400;
   line-height: 1.65;
   color: var(--spark-text);
-  text-align: center;
+}
+
+.spark-tagline-card-mark {
+  display: none;
+}
+
+@media (max-width: 639px) {
+  .spark-tagline-card {
+    padding: 1.125rem 1.375rem 1.25rem;
+    border-radius: 14px;
+    border: 1px solid rgba(168, 213, 207, 0.55);
+    background: linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.98) 0%,
+      rgba(234, 245, 243, 0.92) 55%,
+      rgba(255, 255, 255, 0.96) 100%
+    );
+    box-shadow:
+      0 2px 12px rgba(26, 122, 110, 0.07),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  }
+
+  .spark-tagline-card::before {
+    content: "";
+    display: block;
+    width: 3rem;
+    height: 2px;
+    margin: 0 auto 0.75rem;
+    border-radius: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--spark-teal-mid),
+      transparent
+    );
+  }
+
+  .spark-tagline-card-mark {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 9px;
+    line-height: 1;
+    color: var(--spark-teal);
+    letter-spacing: 0.2em;
+  }
+}
+
+@media (min-width: 640px) {
+  .spark-tagline-card {
+    padding: 0 0.5rem;
+  }
 }
 
 .spark-tool-card {
