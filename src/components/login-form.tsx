@@ -48,8 +48,12 @@ export function LoginForm() {
               ✦
             </span>
             <p className={taglineClass}>
-              Revisit children&apos;s documentation through multiple lenses. You
-              remain the thinker—we help you notice.
+              <span className="block">
+                Revisit children&apos;s documentation through multiple lenses.
+              </span>
+              <span className="block mt-1.5">
+                You remain the thinker—we help you notice.
+              </span>
             </p>
           </div>
 
