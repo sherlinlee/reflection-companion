@@ -5,7 +5,13 @@ import { useActionState } from "react";
 import { signIn, signUp } from "@/app/actions/auth";
 import { BrandMark } from "@/components/brand-mark";
 import { Button } from "@/components/ui/button";
-import { cardClass, fieldClass, pullQuoteClass } from "@/lib/ui-classes";
+import {
+  cardClass,
+  fieldClass,
+  pageEnterClass,
+  pullQuoteClass,
+  staggerClass,
+} from "@/lib/ui-classes";
 
 export function LoginForm() {
   const [signInState, signInAction, signInPending] = useActionState(
@@ -26,10 +32,12 @@ export function LoginForm() {
 
   return (
     <div className="flex min-h-full flex-col items-center justify-center px-4 py-12 sm:py-16">
-      <div className="w-full max-w-[680px] space-y-8">
+      <div
+        className={`w-full max-w-[680px] space-y-8 ${pageEnterClass} ${staggerClass}`}
+      >
         <div className="space-y-5 text-center">
           <div className="flex justify-center">
-            <BrandMark />
+            <BrandMark variant="login" />
           </div>
           <p className={pullQuoteClass}>
             Revisit children&apos;s documentation through multiple lenses. You
@@ -109,7 +117,7 @@ export function LoginForm() {
           Reggio-inspired · Inquiry-led ·{" "}
           <a
             href="https://sparkbysher.com"
-            className="font-medium text-[#1A7A6E] underline-offset-2 hover:underline"
+            className="font-medium text-[#1A7A6E] underline-offset-2 transition-colors hover:text-[#2A9D8F] hover:underline"
             target="_blank"
             rel="noopener noreferrer"
           >

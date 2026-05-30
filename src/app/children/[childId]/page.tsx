@@ -9,7 +9,14 @@ import { PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 import type { Child, ChildReflection, Observation } from "@/lib/types";
-import { cardClass, linkRowClass, sectionLabelClass } from "@/lib/ui-classes";
+import {
+  cardClass,
+  linkArrowClass,
+  linkRowClass,
+  listPanelClass,
+  navLinkClass,
+  sectionLabelClass,
+} from "@/lib/ui-classes";
 
 export default async function ChildPage({
   params,
@@ -82,10 +89,7 @@ export default async function ChildPage({
             <Plus />
             Add observation
           </Button>
-          <Link
-            href="/children"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-[#7A9490] transition-colors hover:text-[#1A7A6E]"
-          >
+          <Link href="/children" className={navLinkClass}>
             <ArrowLeft className="size-4" />
             All children
           </Link>
@@ -114,9 +118,9 @@ export default async function ChildPage({
               No observations yet. Add one to generate a reflection companion.
             </div>
           ) : (
-            <ul className="overflow-hidden rounded-2xl border border-border/80 bg-card/90 shadow-sm">
+            <ul className={listPanelClass}>
               {obsList.map((obs) => (
-                <li key={obs.id} className="border-b border-border/60 last:border-0">
+                <li key={obs.id} className="border-b border-[rgba(168,213,207,0.45)] last:border-0">
                   <Link href={`/observations/${obs.id}`} className={linkRowClass}>
                     <span className="min-w-0 flex-1">
                       <p className="line-clamp-2 text-sm leading-relaxed">
@@ -131,7 +135,7 @@ export default async function ChildPage({
                         })}
                       </time>
                     </span>
-                    <span className="text-sm text-[#2A9D8F]">→</span>
+                    <span className={linkArrowClass}>→</span>
                   </Link>
                 </li>
               ))}

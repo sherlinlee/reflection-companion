@@ -8,6 +8,7 @@ import { PageShell } from "@/components/page-shell";
 import { ReflectionCompanion } from "@/components/reflection-companion";
 import { createClient } from "@/lib/supabase/server";
 import type { Child, Observation, Reflection } from "@/lib/types";
+import { navLinkClass } from "@/lib/ui-classes";
 
 type ObservationRow = Observation & {
   children: Pick<Child, "id" | "name" | "class_name">;
@@ -70,10 +71,7 @@ export default async function ObservationPage({
         subtitle={`Revisiting documentation for ${child.name}`}
       />
       <PageShell>
-        <Link
-          href={`/children/${row.child_id}`}
-          className="inline-flex w-fit items-center gap-1.5 text-sm font-medium text-[#7A9490] transition-colors hover:text-[#1A7A6E]"
-        >
+        <Link href={`/children/${row.child_id}`} className={navLinkClass}>
           <ArrowLeft className="size-4" />
           Back to {child.name}
         </Link>

@@ -7,7 +7,7 @@ import { useState } from "react";
 import { ReflectionSection } from "@/components/reflection-sections";
 import { Button } from "@/components/ui/button";
 import type { Reflection } from "@/lib/types";
-import { pullQuoteClass } from "@/lib/ui-classes";
+import { pullQuoteClass, staggerSectionsClass } from "@/lib/ui-classes";
 
 export function ReflectionCompanion({
   observationId,
@@ -78,7 +78,7 @@ export function ReflectionCompanion({
             </>
           ) : (
             <>
-              <Sparkles />
+              <Sparkles className="spark-icon-pulse" />
               Generate reflection
             </>
           )}
@@ -95,7 +95,7 @@ export function ReflectionCompanion({
       )}
 
       {reflection && (
-        <>
+        <div className={`${staggerSectionsClass} flex flex-col gap-6`}>
           <ReflectionSection
             title="Patterns noticed"
             intro="Language and ideas present in the documentation—not conclusions about the child's thinking."
@@ -117,11 +117,10 @@ export function ReflectionCompanion({
             variant="outline"
             disabled={loading}
             onClick={() => void generate()}
-            className="border-[#1A7A6E]/30 text-[#1A7A6E] hover:bg-[#EAF5F3]"
           >
             {loading ? "Regenerating…" : "Regenerate reflection"}
           </Button>
-        </>
+        </div>
       )}
     </div>
   );

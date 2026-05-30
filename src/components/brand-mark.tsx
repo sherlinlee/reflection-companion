@@ -1,15 +1,26 @@
 import Link from "next/link";
 
-export function BrandMark({ compact }: { compact?: boolean }) {
+import { cn } from "@/lib/utils";
+
+export function BrandMark({
+  compact,
+  variant = "header",
+}: {
+  compact?: boolean;
+  variant?: "header" | "login";
+}) {
   return (
     <Link
       href="/children"
-      className="group inline-flex flex-col gap-1 text-left no-underline"
+      className={cn(
+        "spark-brand group transition-transform duration-200 hover:translate-x-0.5",
+        variant === "login" && "spark-brand--login text-center",
+      )}
     >
-      <span className="font-heading text-[clamp(1.1rem,3vw,1.35rem)] font-semibold leading-tight tracking-[-0.02em] text-[#0F1A18] group-hover:text-[#1A7A6E] transition-colors">
+      <span className="spark-brand-title transition-colors duration-200 group-hover:text-[#1A7A6E]">
         {compact ? "Reflection" : "Documentation Reflection"}
       </span>
-      <span className="text-[10px] font-medium uppercase tracking-[0.22em] text-[#2A9D8F]">
+      <span className="spark-brand-eyebrow transition-colors duration-200 group-hover:text-[#1A7A6E]">
         Spark by Sher
       </span>
     </Link>

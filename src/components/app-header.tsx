@@ -4,10 +4,10 @@ import { Button } from "@/components/ui/button";
 
 export function AppHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
-    <header className="border-b border-[rgba(26,122,110,0.12)] bg-[#ffffff] shadow-[0_2px_10px_rgba(26,122,110,0.04)]">
+    <header className="spark-header">
       <div className="mx-auto flex max-w-[680px] flex-col gap-4 px-4 py-6 sm:px-8">
-        <div className="flex items-start justify-between gap-4">
-          <BrandMark />
+        <div className="flex items-center justify-between gap-4">
+          <BrandMark variant="header" />
           <form action={signOut}>
             <Button
               type="submit"

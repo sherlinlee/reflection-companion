@@ -7,7 +7,11 @@ import { useState } from "react";
 import { ReflectionSection } from "@/components/reflection-sections";
 import { Button } from "@/components/ui/button";
 import type { ChildReflection } from "@/lib/types";
-import { sectionLabelClass } from "@/lib/ui-classes";
+import {
+  panelHighlightClass,
+  sectionLabelClass,
+  staggerSectionsClass,
+} from "@/lib/ui-classes";
 
 export function ChildReflectionCompanion({
   childId,
@@ -67,7 +71,7 @@ export function ChildReflectionCompanion({
   }
 
   return (
-    <section className="rounded-xl border border-[rgba(26,122,110,0.1)] bg-[#EAF5F3] p-6 shadow-[0_2px_10px_rgba(26,122,110,0.05)]">
+    <section className={panelHighlightClass}>
       <div className="space-y-2">
         <h2 className={`${sectionLabelClass} flex items-center gap-2`}>
           <Layers className="size-3.5" />
@@ -107,7 +111,7 @@ export function ChildReflectionCompanion({
               </>
             ) : (
               <>
-                <Sparkles />
+                <Sparkles className="spark-icon-pulse" />
                 Reflect across all observations
               </>
             )}
@@ -124,7 +128,7 @@ export function ChildReflectionCompanion({
         )}
 
         {reflection && (
-          <>
+          <div className={`${staggerSectionsClass} flex flex-col gap-4`}>
             <p className="text-xs text-[#7A9490]">
               Based on {reflection.observation_count} documentation{" "}
               {reflection.observation_count === 1 ? "entry" : "entries"} ·{" "}
@@ -154,11 +158,10 @@ export function ChildReflectionCompanion({
               variant="outline"
               disabled={loading}
               onClick={() => void generate()}
-              className="border-[#1A7A6E]/30 text-[#1A7A6E] hover:bg-[#ffffff]"
             >
               {loading ? "Regenerating…" : "Regenerate across all observations"}
             </Button>
-          </>
+          </div>
         )}
       </div>
     </section>

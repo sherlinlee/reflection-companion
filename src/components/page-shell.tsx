@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
-import { pageWrapClass } from "@/lib/ui-classes";
+import { pageEnterClass, pageWrapClass, staggerClass } from "@/lib/ui-classes";
 
 export function PageShell({
   children,
@@ -11,7 +11,7 @@ export function PageShell({
   className?: string;
 }) {
   return (
-    <div className={cn(pageWrapClass, className)}>
+    <div className={cn(pageWrapClass, pageEnterClass, staggerClass, className)}>
       {children}
     </div>
   );

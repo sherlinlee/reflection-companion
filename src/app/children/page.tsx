@@ -9,7 +9,15 @@ import { Button } from "@/components/ui/button";
 import { hasSupabaseEnv } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 import type { Child } from "@/lib/types";
-import { cardClass, fieldClass, linkRowClass, sectionLabelClass } from "@/lib/ui-classes";
+import {
+  avatarClass,
+  cardClass,
+  fieldClass,
+  linkArrowClass,
+  linkRowClass,
+  listPanelClass,
+  sectionLabelClass,
+} from "@/lib/ui-classes";
 
 export default async function ChildrenPage() {
   if (!hasSupabaseEnv()) redirect("/setup");
@@ -70,11 +78,11 @@ export default async function ChildrenPage() {
               No children yet. Add one above to begin documenting.
             </div>
           ) : (
-            <ul className="overflow-hidden rounded-2xl border border-border/80 bg-card/90 shadow-sm">
+            <ul className={listPanelClass}>
               {list.map((child) => (
-                <li key={child.id} className="border-b border-border/60 last:border-0">
+                <li key={child.id} className="border-b border-[rgba(168,213,207,0.45)] last:border-0">
                   <Link href={`/children/${child.id}`} className={linkRowClass}>
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#EAF5F3] font-heading text-lg font-semibold text-[#1A7A6E]">
+                    <span className={avatarClass}>
                       {child.name.charAt(0).toUpperCase()}
                     </span>
                     <span className="min-w-0 flex-1">
@@ -89,7 +97,7 @@ export default async function ChildrenPage() {
                             : "View observations"}
                       </span>
                     </span>
-                    <span className="text-sm text-[#2A9D8F]">→</span>
+                    <span className={linkArrowClass}>→</span>
                   </Link>
                 </li>
               ))}
