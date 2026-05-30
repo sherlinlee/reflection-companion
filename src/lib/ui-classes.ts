@@ -29,6 +29,11 @@ export const linkArrowClass = "spark-link-arrow";
 /** Matches .pull-quote on sparkbysher.com */
 export const pullQuoteClass = "spark-pull-quote";
 
+/** Login intro — small, readable body text */
+export const taglineClass = "spark-tagline";
+
+export const sparkToolCardClass = "spark-tool-card";
+
 export const claimBannerClass = "spark-claim-banner";
 
 export const navLinkClass =

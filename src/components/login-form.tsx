@@ -9,8 +9,9 @@ import {
   cardClass,
   fieldClass,
   pageEnterClass,
-  pullQuoteClass,
+  sparkToolCardClass,
   staggerClass,
+  taglineClass,
 } from "@/lib/ui-classes";
 
 export function LoginForm() {
@@ -39,10 +40,30 @@ export function LoginForm() {
           <div className="flex justify-center">
             <BrandMark variant="login" />
           </div>
-          <p className={pullQuoteClass}>
+          <p className={taglineClass}>
             Revisit children&apos;s documentation through multiple lenses. You
             remain the thinker—we help you notice.
           </p>
+
+          <a
+            href="https://sparkbysher.onrender.com"
+            className={sparkToolCardClass}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span className="spark-tool-card-label">Also from Spark by Sher</span>
+            <span className="spark-tool-card-title">Spark tool</span>
+            <span className="spark-tool-card-desc">
+              Turn topics and classroom moments into provocations, inquiry
+              questions, and environment setups.
+            </span>
+            <span className="spark-tool-card-link">
+              Open sparkbysher.onrender.com{" "}
+              <span className="spark-tool-card-arrow" aria-hidden>
+                →
+              </span>
+            </span>
+          </a>
         </div>
 
         {error && (
