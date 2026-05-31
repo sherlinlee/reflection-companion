@@ -33,12 +33,12 @@ export default async function ChildrenPage() {
   return (
     <>
       <AppHeader
-        title="Children"
+        title="Students"
         subtitle="The educator remains the thinker. Document, then revisit with fresh eyes."
       />
       <PageShell>
         <section className={cardClass}>
-          <h2 className={`${sectionLabelClass} mb-4`}>Add child</h2>
+          <h2 className={`${sectionLabelClass} mb-4`}>Add individual</h2>
           <form action={createChild} className="flex flex-col gap-3">
             <input
               name="name"
@@ -63,7 +63,7 @@ export default async function ChildrenPage() {
             </div>
             <Button type="submit" variant="cta" className="w-full sm:w-auto" size="lg">
               <Plus />
-              Add child
+              Add individual
             </Button>
           </form>
         </section>
@@ -71,11 +71,11 @@ export default async function ChildrenPage() {
         <section>
           <h2 className={`${sectionLabelClass} mb-4 flex items-center gap-2`}>
             <Users className="size-4" />
-            Your children
+            Your students
           </h2>
           {list.length === 0 ? (
             <div className={`${cardClass} text-center text-sm text-muted-foreground`}>
-              No children yet. Add one above to begin documenting.
+              No students yet. Add one above to begin documenting.
             </div>
           ) : (
             <ul className={listPanelClass}>
