@@ -172,7 +172,7 @@ export default async function ChildPage({
           <summary className="flex cursor-pointer list-none items-center justify-between py-1 text-[11px] text-[#8a9490] transition-colors hover:text-[#9a7c2e] [&::-webkit-details-marker]:hidden">
             <span className="flex items-center gap-1.5">
               <Settings className="size-3" />
-              Manage profile
+              Manage student profile
             </span>
             <svg
               className="size-3.5 transition-transform group-open:rotate-180"

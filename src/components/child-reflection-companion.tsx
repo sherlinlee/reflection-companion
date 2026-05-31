@@ -203,6 +203,16 @@ export function ChildReflectionCompanion({
             variant="connections"
           />
 
+          {/* ── Regenerate ── */}
+          <button
+            type="button"
+            disabled={loading}
+            onClick={() => void generate()}
+            className="self-start text-[12px] text-[#8a9490] underline-offset-2 transition-colors hover:text-[#9a7c2e] hover:underline disabled:opacity-50 print:hidden"
+          >
+            {loading ? "Regenerating…" : "Regenerate across all observations"}
+          </button>
+
           {/* ── Export actions ── */}
           <div className="flex flex-wrap items-center gap-2 border-t border-[rgba(154,124,46,0.1)] pt-3 print:hidden">
             <button
@@ -229,14 +239,6 @@ export function ChildReflectionCompanion({
             >
               <Download className="size-3.5" />
               Download PDF
-            </button>
-            <button
-              type="button"
-              disabled={loading}
-              onClick={() => void generate()}
-              className="self-start text-[12px] text-[#8a9490] underline-offset-2 transition-colors hover:text-[#9a7c2e] hover:underline disabled:opacity-50"
-            >
-              {loading ? "Regenerating…" : "Regenerate across all observations"}
             </button>
           </div>
         </div>
