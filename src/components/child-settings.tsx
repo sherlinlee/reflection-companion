@@ -20,7 +20,7 @@ export function ChildSettings({ child }: { child: Child }) {
   return (
     <section className={cardClass}>
       <div className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="text-sm font-medium">Child profile</h2>
+        <h2 className="text-sm font-medium">Individual profile</h2>
         <Button
           type="button"
           variant="ghost"
@@ -105,11 +105,11 @@ export function ChildSettings({ child }: { child: Child }) {
       >
         <input type="hidden" name="child_id" value={child.id} />
         <p className="mb-3 text-xs text-muted-foreground">
-          Deleting removes this child and all observations and reflections
+          Deleting removes this individual and all observations and reflections
           linked to them.
         </p>
         <Button type="submit" variant="destructive" size="sm">
-          Delete child
+          Delete individual
         </Button>
       </form>
     </section>

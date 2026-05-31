@@ -168,7 +168,7 @@ export default async function ChildPage({
         {/* ── Child settings — collapsed at bottom ── */}
         <details className="group">
           <summary className="flex cursor-pointer list-none items-center justify-between py-1 text-[11px] text-[#8a9490] transition-colors hover:text-[#9a7c2e] [&::-webkit-details-marker]:hidden">
-            <span>Child profile settings</span>
+            <span>Individual profile settings</span>
             <svg
               className="size-3.5 transition-transform group-open:rotate-180"
               viewBox="0 0 16 16"
