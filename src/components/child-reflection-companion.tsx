@@ -203,42 +203,38 @@ export function ChildReflectionCompanion({
             variant="connections"
           />
 
-          {/* ── Regenerate ── */}
-          <button
-            type="button"
-            disabled={loading}
-            onClick={() => void generate()}
-            className="self-start text-[12px] text-[#8a9490] underline-offset-2 transition-colors hover:text-[#9a7c2e] hover:underline disabled:opacity-50 print:hidden"
-          >
-            {loading ? "Regenerating…" : "Regenerate across all observations"}
-          </button>
-
-          {/* ── Export actions ── */}
-          <div className="flex flex-wrap items-center gap-2 border-t border-[rgba(154,124,46,0.1)] pt-3 print:hidden">
+          {/* ── Toolbar: export + regenerate ── */}
+          <div className="flex items-center justify-between gap-3 border-t border-[rgba(154,124,46,0.15)] pt-3 print:hidden">
+            <div className="flex items-center gap-1.5">
+              {/* Copy */}
+              <button
+                type="button"
+                onClick={() => void handleCopy()}
+                title="Copy to clipboard"
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-[rgba(154,124,46,0.2)] bg-white text-[#9a7c2e] transition-colors hover:bg-[#faf4e6]"
+              >
+                {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
+              </button>
+              {/* PDF */}
+              <button
+                type="button"
+                onClick={handlePrint}
+                title="Download PDF"
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-[rgba(154,124,46,0.2)] bg-white text-[#9a7c2e] transition-colors hover:bg-[#faf4e6]"
+              >
+                <Download className="size-3.5" />
+              </button>
+            </div>
+            {/* Regenerate — right-aligned, clearly secondary */}
             <button
               type="button"
-              onClick={() => void handleCopy()}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[rgba(154,124,46,0.2)] bg-white px-3 py-2 text-[12px] font-medium text-[#9a7c2e] transition-colors hover:bg-[#faf4e6]"
+              disabled={loading}
+              onClick={() => void generate()}
+              className="text-[11px] text-[#c8a85a] underline underline-offset-2 transition-colors hover:text-[#9a7c2e] disabled:opacity-40"
             >
-              {copied ? (
-                <>
-                  <Check className="size-3.5" />
-                  Copied
-                </>
-              ) : (
-                <>
-                  <Copy className="size-3.5" />
-                  Copy to clipboard
-                </>
-              )}
-            </button>
-            <button
-              type="button"
-              onClick={handlePrint}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[rgba(154,124,46,0.2)] bg-white px-3 py-2 text-[12px] font-medium text-[#9a7c2e] transition-colors hover:bg-[#faf4e6]"
-            >
-              <Download className="size-3.5" />
-              Download PDF
+              {loading
+                ? "Regenerating…"
+                : `Regenerate observations for ${childName}`}
             </button>
           </div>
         </div>
