@@ -100,17 +100,19 @@ export function ReflectionCompanion({
             title="Patterns noticed"
             intro="Language and ideas present in the documentation—not conclusions about the child's thinking."
             items={reflection.patterns}
+            variant="patterns"
           />
           <ReflectionSection
             title="Reflection questions"
             intro="Questions for you to sit with. You may wish to consider…"
             items={reflection.questions}
+            variant="questions"
           />
           <ReflectionSection
             title="Connections worth exploring"
             intro="Possible directions to revisit—offered with curiosity, not certainty."
             items={reflection.connections}
-            variant="highlight"
+            variant="connections"
           />
           <Button
             type="button"
