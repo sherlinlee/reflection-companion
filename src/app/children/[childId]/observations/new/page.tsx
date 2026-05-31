@@ -35,26 +35,37 @@ export default async function NewObservationPage({
       <PageShell>
         <form action={createObservation} className={`${cardClass} flex flex-col gap-4`}>
           <input type="hidden" name="child_id" value={childId} />
-          <label htmlFor="observation_text" className="font-heading text-lg font-semibold">
-            Observation
-          </label>
+          <div>
+            <label htmlFor="observation_text" className="font-heading text-lg font-semibold">
+              Observation
+            </label>
+            <p className="mt-1 text-[12px] leading-[1.6] text-[#8a9490]">
+              The quality of your observation shapes the depth of reflection.
+              Include what you saw, what they said, and the context — the richer
+              the detail, the more meaningful the reflection.
+            </p>
+          </div>
           <textarea
             id="observation_text"
             name="observation_text"
             required
             rows={12}
             maxLength={20000}
-            placeholder={`Example:\n\nAva found a worm.\n\nShe said:\n"The worm is building a road underground."`}
+            placeholder={`Write what you saw and heard — in the child's own words where possible.\n\nExample:\n\nAva crouched by the garden bed and picked up a worm. She held it carefully and said: "The worm is building a road underground. He's an engineer like my dad."\n\nShe spent 10 minutes watching it move before asking if worms sleep.`}
             className={`${fieldClass} min-h-[260px] resize-y`}
           />
-          <p className="text-sm text-muted-foreground">
-            Record what you noticed—in the child&apos;s words when possible.
+          <p className="text-[12px] text-[#8a9490]">
+            Richer observations lead to richer reflections.
           </p>
-          <div className="flex flex-wrap gap-3 pt-2">
+          <div className="flex flex-wrap gap-3 pt-1">
             <Button type="submit" variant="cta" size="lg">
               Save observation
             </Button>
-            <Button variant="ghost" render={<Link href={`/children/${childId}`} />}>
+            <Button
+              variant="ghost"
+              nativeButton={false}
+              render={<Link href={`/children/${childId}`} />}
+            >
               Cancel
             </Button>
           </div>
