@@ -161,6 +161,8 @@ export default async function ChildPage({
         <ChildReflectionCompanion
           childId={childId}
           childName={c.name}
+          childAge={c.age}
+          childClass={c.class_name}
           observationCount={obsList.length}
           initialReflection={childReflection}
         />
