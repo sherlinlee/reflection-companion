@@ -35,7 +35,6 @@ export function ChildReflectionCompanion({
   async function generate() {
     setLoading(true);
     setError(null);
-
     try {
       const res = await fetch("/api/reflect/child", {
         method: "POST",
@@ -43,12 +42,10 @@ export function ChildReflectionCompanion({
         body: JSON.stringify({ childId }),
       });
       const data = (await res.json()) as ChildReflection & { error?: string };
-
       if (!res.ok) {
         setError(data.error ?? "Could not generate reflection.");
         return;
       }
-
       setReflection({
         id: data.id,
         child_id: childId,
@@ -66,36 +63,33 @@ export function ChildReflectionCompanion({
     }
   }
 
-  if (observationCount === 0) {
-    return null;
-  }
+  if (observationCount === 0) return null;
 
   return (
     <section className={panelHighlightClass}>
-      <div className="space-y-2">
+      {/* Header */}
+      <div className="space-y-1.5">
         <h2 className={`${sectionLabelClass} flex items-center gap-2`}>
-          <Layers className="size-3.5" />
+          <Layers className="size-3" />
           Reflection across documentation
         </h2>
-        <p className="text-[15px] leading-[1.92] text-[#3D4F4C]">
-          Revisit all of {childName}&apos;s observations together (oldest to
-          newest)—patterns and questions that connect entry 1, 2, 3…
-        </p>
-        <p className="text-xs text-[#7A9490]">
-          {observationCount} observation{observationCount === 1 ? "" : "s"}{" "}
-          will be included.
+        <p className="text-[13px] leading-[1.6] text-[#6b7a76]">
+          Revisit all of {childName}&apos;s observations together — patterns and
+          questions across all {observationCount}{" "}
+          {observationCount === 1 ? "entry" : "entries"}.
         </p>
       </div>
 
+      {/* Stale warning */}
       {isStale && (
-        <p className="spark-claim-banner mt-4 text-sm">
-          You have new or changed observations since this reflection was
-          generated. Regenerate to include the full set.
+        <p className="spark-claim-banner mt-3 text-[13px]">
+          New observations have been added. Regenerate to include the full set.
         </p>
       )}
 
-      <div className="mt-6 flex flex-col gap-4">
-        {!reflection && (
+      {/* Generate CTA */}
+      {!reflection && (
+        <div className="mt-4">
           <Button
             type="button"
             variant="cta"
@@ -116,54 +110,58 @@ export function ChildReflectionCompanion({
               </>
             )}
           </Button>
-        )}
+        </div>
+      )}
 
-        {error && (
-          <p
-            role="alert"
-            className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
-          >
-            {error}
+      {/* Error */}
+      {error && (
+        <p
+          role="alert"
+          className="mt-3 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2.5 text-[13px] text-destructive"
+        >
+          {error}
+        </p>
+      )}
+
+      {/* Reflection output */}
+      {reflection && (
+        <div className={`${staggerSectionsClass} mt-4 flex flex-col gap-3`}>
+          <p className="text-[11px] text-[#8a9490]">
+            Based on {reflection.observation_count}{" "}
+            {reflection.observation_count === 1 ? "entry" : "entries"} ·{" "}
+            {new Date(reflection.created_at).toLocaleString("en", {
+              dateStyle: "medium",
+              timeStyle: "short",
+            })}
           </p>
-        )}
-
-        {reflection && (
-          <div className={`${staggerSectionsClass} flex flex-col gap-4`}>
-            <p className="text-xs text-[#7A9490]">
-              Based on {reflection.observation_count} documentation{" "}
-              {reflection.observation_count === 1 ? "entry" : "entries"} ·{" "}
-              {new Date(reflection.created_at).toLocaleString(undefined, {
-                dateStyle: "medium",
-                timeStyle: "short",
-              })}
-            </p>
-            <ReflectionSection
-              title="Patterns noticed"
-              intro="Patterns across the full body of documentation—not one moment in isolation."
-              items={reflection.patterns}
-            />
-            <ReflectionSection
-              title="Reflection questions"
-              intro="Questions that may connect multiple entries. You may wish to consider…"
-              items={reflection.questions}
-            />
-            <ReflectionSection
-              title="Connections worth exploring"
-              intro="How documentation over time might relate—offered with curiosity."
-              items={reflection.connections}
-              variant="highlight"
-            />
-            <Button
-              type="button"
-              variant="outline"
-              disabled={loading}
-              onClick={() => void generate()}
-            >
-              {loading ? "Regenerating…" : "Regenerate across all observations"}
-            </Button>
-          </div>
-        )}
-      </div>
+          <ReflectionSection
+            title="Patterns noticed"
+            intro="Across the full body of documentation — not one moment in isolation."
+            items={reflection.patterns}
+            variant="patterns"
+          />
+          <ReflectionSection
+            title="Reflection questions"
+            intro="Questions that may connect multiple entries. You may wish to consider…"
+            items={reflection.questions}
+            variant="questions"
+          />
+          <ReflectionSection
+            title="Connections worth exploring"
+            intro="How documentation over time might relate — offered with curiosity."
+            items={reflection.connections}
+            variant="connections"
+          />
+          <button
+            type="button"
+            disabled={loading}
+            onClick={() => void generate()}
+            className="self-start text-[12px] text-[#8a9490] underline-offset-2 transition-colors hover:text-[#9a7c2e] hover:underline disabled:opacity-50"
+          >
+            {loading ? "Regenerating…" : "Regenerate across all observations"}
+          </button>
+        </div>
+      )}
     </section>
   );
 }
