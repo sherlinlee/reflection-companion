@@ -124,7 +124,8 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-sans), Georgia, serif;
-    line-height: 1.85;
+    font-size: 15px;
+    line-height: 1.65;
     -webkit-font-smoothing: antialiased;
     background-image: radial-gradient(
       ellipse 70% 45% at 50% 0%,
@@ -633,12 +634,12 @@ body::after {
 }
 
 .spark-reflection-block--highlight {
-  border-left-color: var(--spark-ochre);
-  background: var(--spark-ochre-pale);
+  border-left-color: var(--spark-ochre-mid);
+  background: var(--spark-white);
 }
 
 .spark-reflection-block--highlight:hover {
-  box-shadow: 0 6px 20px rgba(154, 124, 46, 0.12);
+  box-shadow: 0 6px 20px rgba(154, 124, 46, 0.1);
 }
 
 .spark-reflection-item {
