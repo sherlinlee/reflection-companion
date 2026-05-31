@@ -5,6 +5,20 @@ import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
 
+async function uploadFile(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  file: File,
+  folder: string,
+): Promise<string | null> {
+  const ext = file.name.split(".").pop() ?? "bin";
+  const path = `${folder}/${crypto.randomUUID()}.${ext}`;
+  const { error } = await supabase.storage
+    .from("observation-media")
+    .upload(path, file, { contentType: file.type, upsert: false });
+  if (error) return null;
+  return path;
+}
+
 export async function createObservation(formData: FormData) {
   const supabase = await createClient();
 
@@ -15,14 +29,28 @@ export async function createObservation(formData: FormData) {
     redirect(`/children/${primaryChildId}/observations/new`);
   }
 
-  // Collect all selected child IDs (primary + any additional)
   const additionalChildIds = formData.getAll("additional_child_ids").map(String);
   const allChildIds = Array.from(new Set([primaryChildId, ...additionalChildIds]));
 
-  // Insert one observation per child
+  // Handle media uploads
+  const imageFile = formData.get("image") as File | null;
+  const audioFile = formData.get("audio") as File | null;
+
+  let image_url: string | null = null;
+  let audio_url: string | null = null;
+
+  if (imageFile && imageFile.size > 0) {
+    image_url = await uploadFile(supabase, imageFile, "images");
+  }
+  if (audioFile && audioFile.size > 0) {
+    audio_url = await uploadFile(supabase, audioFile, "audio");
+  }
+
   const inserts = allChildIds.map((child_id) => ({
     child_id,
     observation_text,
+    image_url,
+    audio_url,
   }));
 
   const { data, error } = await supabase
@@ -34,57 +62,12 @@ export async function createObservation(formData: FormData) {
     redirect(`/children/${primaryChildId}/observations/new`);
   }
 
-  // Revalidate all affected child pages
   for (const childId of allChildIds) {
     revalidatePath(`/children/${childId}`);
   }
 
-  // Redirect to the primary child's observation
   const primaryObs = data.find((d) => d.child_id === primaryChildId) ?? data[0];
   redirect(`/observations/${primaryObs.id}`);
-}
-
-export async function updateObservation(formData: FormData) {
-  const supabase = await createClient();
-  const observationId = String(formData.get("observation_id") ?? "");
-  const childId = String(formData.get("child_id") ?? "");
-  const observation_text = String(formData.get("observation_text") ?? "").trim();
-
-  if (!observationId || !observation_text) {
-    redirect(`/observations/${observationId}`);
-  }
-
-  await supabase
-    .from("reflections")
-    .delete()
-    .eq("observation_id", observationId);
-
-  await supabase.from("child_reflections").delete().eq("child_id", childId);
-
-  const { error } = await supabase
-    .from("observations")
-    .update({ observation_text })
-    .eq("id", observationId);
-
-  if (error) redirect(`/observations/${observationId}`);
-
-  revalidatePath(`/observations/${observationId}`);
-  revalidatePath(`/children/${childId}`);
-  redirect(`/observations/${observationId}`);
-}
-
-export async function deleteObservation(formData: FormData) {
-  const supabase = await createClient();
-  const observationId = String(formData.get("observation_id") ?? "");
-  const childId = String(formData.get("child_id") ?? "");
-
-  if (!observationId) redirect("/children");
-
-  await supabase.from("child_reflections").delete().eq("child_id", childId);
-  await supabase.from("observations").delete().eq("id", observationId);
-
-  revalidatePath(`/children/${childId}`);
-  redirect(`/children/${childId}`);
 }
 
 export async function createGroupObservation(formData: FormData) {
@@ -112,6 +95,57 @@ export async function createGroupObservation(formData: FormData) {
     revalidatePath(`/children/${childId}`);
   }
 
-  // Redirect to first child's observation
   redirect(`/observations/${data[0].id}`);
+}
+
+export async function updateObservation(formData: FormData) {
+  const supabase = await createClient();
+  const observationId = String(formData.get("observation_id") ?? "");
+  const childId = String(formData.get("child_id") ?? "");
+  const observation_text = String(formData.get("observation_text") ?? "").trim();
+
+  if (!observationId || !observation_text) {
+    redirect(`/observations/${observationId}`);
+  }
+
+  await supabase.from("reflections").delete().eq("observation_id", observationId);
+  await supabase.from("child_reflections").delete().eq("child_id", childId);
+
+  const { error } = await supabase
+    .from("observations")
+    .update({ observation_text })
+    .eq("id", observationId);
+
+  if (error) redirect(`/observations/${observationId}`);
+
+  revalidatePath(`/observations/${observationId}`);
+  revalidatePath(`/children/${childId}`);
+  redirect(`/observations/${observationId}`);
+}
+
+export async function deleteObservation(formData: FormData) {
+  const supabase = await createClient();
+  const observationId = String(formData.get("observation_id") ?? "");
+  const childId = String(formData.get("child_id") ?? "");
+
+  if (!observationId) redirect("/children");
+
+  // Get media paths before deleting
+  const { data: obs } = await supabase
+    .from("observations")
+    .select("image_url, audio_url")
+    .eq("id", observationId)
+    .single();
+
+  // Delete media from storage
+  const paths = [obs?.image_url, obs?.audio_url].filter(Boolean) as string[];
+  if (paths.length > 0) {
+    await supabase.storage.from("observation-media").remove(paths);
+  }
+
+  await supabase.from("child_reflections").delete().eq("child_id", childId);
+  await supabase.from("observations").delete().eq("id", observationId);
+
+  revalidatePath(`/children/${childId}`);
+  redirect(`/children/${childId}`);
 }

@@ -15,6 +15,8 @@ type Props = {
   childName: string;
   observationText: string;
   createdAt: string;
+  imageUrl?: string | null;
+  audioUrl?: string | null;
 };
 
 export function ObservationSettings({
@@ -23,6 +25,8 @@ export function ObservationSettings({
   childName,
   observationText,
   createdAt,
+  imageUrl,
+  audioUrl,
 }: Props) {
   const [editing, setEditing] = useState(false);
 
@@ -63,7 +67,7 @@ export function ObservationSettings({
             className={`${fieldClass} min-h-[200px] resize-y`}
           />
           <p className="text-xs text-muted-foreground">
-            Saving clears the current reflection—you can generate a new one
+            Saving clears the current reflection — you can generate a new one
             after editing.
           </p>
           <Button type="submit" variant="cta" className="w-full sm:w-auto">
@@ -72,14 +76,45 @@ export function ObservationSettings({
         </form>
       ) : (
         <>
-          <p className="whitespace-pre-wrap text-sm leading-relaxed">
+          <p className="whitespace-pre-wrap text-[13.5px] leading-relaxed text-[#3d4f4c]">
             {observationText}
           </p>
+
+          {/* ── Photo ── */}
+          {imageUrl && (
+            <div className="mt-4">
+              <p className="mb-1.5 text-[10px] font-medium uppercase tracking-[0.18em] text-[#c8a85a]">
+                Photo
+              </p>
+              <a href={imageUrl} target="_blank" rel="noopener noreferrer">
+                <img
+                  src={imageUrl}
+                  alt="Observation photo"
+                  className="max-h-[400px] w-full rounded-lg border border-[rgba(154,124,46,0.12)] object-cover transition-opacity hover:opacity-90"
+                />
+              </a>
+            </div>
+          )}
+
+          {/* ── Voice memo ── */}
+          {audioUrl && (
+            <div className="mt-4">
+              <p className="mb-1.5 text-[10px] font-medium uppercase tracking-[0.18em] text-[#c8a85a]">
+                Voice memo
+              </p>
+              <audio
+                controls
+                src={audioUrl}
+                className="w-full rounded-lg"
+              />
+            </div>
+          )}
+
           <time
             dateTime={createdAt}
             className="mt-4 block text-xs text-muted-foreground"
           >
-            {new Date(createdAt).toLocaleString(undefined, {
+            {new Date(createdAt).toLocaleString("en", {
               dateStyle: "medium",
               timeStyle: "short",
             })}

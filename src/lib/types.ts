@@ -11,6 +11,8 @@ export type Observation = {
   id: string;
   child_id: string;
   observation_text: string;
+  image_url: string | null;
+  audio_url: string | null;
   created_at: string;
 };
 

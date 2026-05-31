@@ -15,6 +15,8 @@ create table if not exists observations (
   id uuid primary key default gen_random_uuid(),
   child_id uuid not null references children (id) on delete cascade,
   observation_text text not null,
+  image_url text,
+  audio_url text,
   created_at timestamptz not null default now()
 );
 

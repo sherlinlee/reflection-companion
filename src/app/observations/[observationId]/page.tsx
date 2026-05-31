@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
+import { getSignedUrl } from "@/lib/get-signed-url";
 import { AppHeader } from "@/components/app-header";
 import { ObservationSettings } from "@/components/observation-settings";
 import { PageShell } from "@/components/page-shell";
@@ -19,6 +20,8 @@ type ObservationRow = Observation & {
     connections: string[];
     created_at: string;
   }[];
+  image_url: string | null;
+  audio_url: string | null;
 };
 
 export default async function ObservationPage({
@@ -36,6 +39,8 @@ export default async function ObservationPage({
       id,
       child_id,
       observation_text,
+      image_url,
+      audio_url,
       created_at,
       children ( id, name, class_name ),
       reflections ( id, patterns, questions, connections, created_at )
@@ -48,6 +53,7 @@ export default async function ObservationPage({
 
   const row = data as unknown as ObservationRow;
   const child = row.children;
+
   const latest = [...(row.reflections ?? [])].sort(
     (a, b) =>
       new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
@@ -64,6 +70,14 @@ export default async function ObservationPage({
       }
     : null;
 
+  // Generate signed URLs for media
+  const imageSignedUrl = row.image_url
+    ? await getSignedUrl(row.image_url)
+    : null;
+  const audioSignedUrl = row.audio_url
+    ? await getSignedUrl(row.audio_url)
+    : null;
+
   return (
     <>
       <AppHeader
@@ -71,7 +85,10 @@ export default async function ObservationPage({
         subtitle={`Revisiting documentation for ${child.name}`}
       />
       <PageShell>
-        <Link href={`/children/${row.child_id}`} className={`${navLinkClass} print:hidden`}>
+        <Link
+          href={`/children/${row.child_id}`}
+          className={`${navLinkClass} print:hidden`}
+        >
           <ArrowLeft className="size-4" />
           Back to {child.name}
         </Link>
@@ -82,6 +99,8 @@ export default async function ObservationPage({
           childName={child.name}
           observationText={row.observation_text}
           createdAt={row.created_at}
+          imageUrl={imageSignedUrl}
+          audioUrl={audioSignedUrl}
         />
 
         <ReflectionCompanion

@@ -26,7 +26,6 @@ export default async function NewObservationPage({
   if (!child) notFound();
   const c = child as Child;
 
-  // Fetch all other children for the group picker
   const { data: allChildren } = await supabase
     .from("children")
     .select("id, name, class_name, age")
@@ -44,6 +43,7 @@ export default async function NewObservationPage({
       <PageShell>
         <form
           action={createObservation}
+          encType="multipart/form-data"
           className={`${cardClass} flex flex-col gap-5`}
         >
           <input type="hidden" name="child_id" value={childId} />
@@ -77,12 +77,48 @@ export default async function NewObservationPage({
             Richer observations lead to richer reflections.
           </p>
 
+          {/* ── Media attachments ── */}
+          <div className="border-t border-[rgba(154,124,46,0.1)] pt-4">
+            <p className={`${sectionLabelClass} mb-3`}>Attach media</p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {/* Photo */}
+              <label className="flex cursor-pointer flex-col gap-1.5">
+                <span className="text-[12px] font-medium text-[#3d4f4c]">
+                  Photo
+                </span>
+                <input
+                  type="file"
+                  name="image"
+                  accept="image/jpeg,image/png,image/webp,image/heic"
+                  className="block w-full rounded-lg border border-[rgba(154,124,46,0.2)] bg-white px-3 py-2 text-[12px] text-[#8a9490] file:mr-3 file:rounded-md file:border-0 file:bg-[#faf4e6] file:px-2.5 file:py-1 file:text-[11px] file:font-medium file:text-[#9a7c2e] hover:border-[rgba(154,124,46,0.35)]"
+                />
+                <span className="text-[11px] text-[#8a9490]">
+                  JPEG, PNG, WEBP, HEIC · max 10MB
+                </span>
+              </label>
+
+              {/* Voice memo */}
+              <label className="flex cursor-pointer flex-col gap-1.5">
+                <span className="text-[12px] font-medium text-[#3d4f4c]">
+                  Voice memo
+                </span>
+                <input
+                  type="file"
+                  name="audio"
+                  accept="audio/mp4,audio/mpeg,audio/webm,audio/x-m4a"
+                  className="block w-full rounded-lg border border-[rgba(154,124,46,0.2)] bg-white px-3 py-2 text-[12px] text-[#8a9490] file:mr-3 file:rounded-md file:border-0 file:bg-[#faf4e6] file:px-2.5 file:py-1 file:text-[11px] file:font-medium file:text-[#9a7c2e] hover:border-[rgba(154,124,46,0.35)]"
+                />
+                <span className="text-[11px] text-[#8a9490]">
+                  M4A, MP3, MP4, WEBM · max 50MB
+                </span>
+              </label>
+            </div>
+          </div>
+
           {/* ── Group observation picker ── */}
           {others.length > 0 && (
             <div className="border-t border-[rgba(154,124,46,0.1)] pt-4">
-              <p className={`${sectionLabelClass} mb-3`}>
-                Also document for
-              </p>
+              <p className={`${sectionLabelClass} mb-3`}>Also document for</p>
               <p className="mb-3 text-[12px] leading-[1.5] text-[#8a9490]">
                 This observation will be saved separately for each selected
                 student — each gets their own reflection.
