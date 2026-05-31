@@ -71,7 +71,7 @@ export default async function ObservationPage({
         subtitle={`Revisiting documentation for ${child.name}`}
       />
       <PageShell>
-        <Link href={`/children/${row.child_id}`} className={navLinkClass}>
+        <Link href={`/children/${row.child_id}`} className={`${navLinkClass} print:hidden`}>
           <ArrowLeft className="size-4" />
           Back to {child.name}
         </Link>
@@ -87,6 +87,9 @@ export default async function ObservationPage({
         <ReflectionCompanion
           observationId={observationId}
           initialReflection={reflection}
+          observationText={row.observation_text}
+          childName={child.name}
+          createdAt={row.created_at}
         />
       </PageShell>
     </>
