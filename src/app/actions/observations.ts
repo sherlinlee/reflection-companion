@@ -86,3 +86,32 @@ export async function deleteObservation(formData: FormData) {
   revalidatePath(`/children/${childId}`);
   redirect(`/children/${childId}`);
 }
+
+export async function createGroupObservation(formData: FormData) {
+  const supabase = await createClient();
+
+  const observation_text = String(formData.get("observation_text") ?? "").trim();
+  const childIds = formData.getAll("child_ids").map(String).filter(Boolean);
+
+  if (!observation_text || childIds.length === 0) {
+    redirect("/children");
+  }
+
+  const inserts = childIds.map((child_id) => ({ child_id, observation_text }));
+
+  const { data, error } = await supabase
+    .from("observations")
+    .insert(inserts)
+    .select("id, child_id");
+
+  if (error || !data || data.length === 0) {
+    redirect("/children");
+  }
+
+  for (const childId of childIds) {
+    revalidatePath(`/children/${childId}`);
+  }
+
+  // Redirect to first child's observation
+  redirect(`/observations/${data[0].id}`);
+}
