@@ -7,25 +7,41 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function createObservation(formData: FormData) {
   const supabase = await createClient();
-  const childId = String(formData.get("child_id") ?? "");
+
+  const primaryChildId = String(formData.get("child_id") ?? "");
   const observation_text = String(formData.get("observation_text") ?? "").trim();
 
-  if (!childId || !observation_text) {
-    redirect(`/children/${childId}/observations/new`);
+  if (!primaryChildId || !observation_text) {
+    redirect(`/children/${primaryChildId}/observations/new`);
   }
+
+  // Collect all selected child IDs (primary + any additional)
+  const additionalChildIds = formData.getAll("additional_child_ids").map(String);
+  const allChildIds = Array.from(new Set([primaryChildId, ...additionalChildIds]));
+
+  // Insert one observation per child
+  const inserts = allChildIds.map((child_id) => ({
+    child_id,
+    observation_text,
+  }));
 
   const { data, error } = await supabase
     .from("observations")
-    .insert({ child_id: childId, observation_text })
-    .select("id")
-    .single();
+    .insert(inserts)
+    .select("id, child_id");
 
-  if (error || !data) {
-    redirect(`/children/${childId}/observations/new`);
+  if (error || !data || data.length === 0) {
+    redirect(`/children/${primaryChildId}/observations/new`);
   }
 
-  revalidatePath(`/children/${childId}`);
-  redirect(`/observations/${data.id}`);
+  // Revalidate all affected child pages
+  for (const childId of allChildIds) {
+    revalidatePath(`/children/${childId}`);
+  }
+
+  // Redirect to the primary child's observation
+  const primaryObs = data.find((d) => d.child_id === primaryChildId) ?? data[0];
+  redirect(`/observations/${primaryObs.id}`);
 }
 
 export async function updateObservation(formData: FormData) {
