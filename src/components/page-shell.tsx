@@ -11,7 +11,7 @@ export function PageShell({
   className?: string;
 }) {
   return (
-    <div className={cn(pageWrapClass, pageEnterClass, staggerClass, className)}>
+    <div className={cn(pageWrapClass, className)}>
       {children}
     </div>
   );
