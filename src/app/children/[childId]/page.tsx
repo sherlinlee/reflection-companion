@@ -106,7 +106,7 @@ export default async function ChildPage({
 
       <PageShell>
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
+          <div className="print:hidden">
             <h1 className="font-heading text-[1.5rem] font-semibold leading-tight tracking-[-0.02em] text-[#0f1a18]">
               {c.name}
             </h1>
@@ -118,13 +118,16 @@ export default async function ChildPage({
               </p>
             )}
           </div>
-          <div className="flex flex-wrap items-center gap-2 print:hidden">
+          <div className="flex flex-wrap items-center gap-2">
             <ChildPortfolioPrint
               child={c}
               observations={portfolioObs}
               childReflection={childReflection}
             />
-            <AddObservationButton childId={childId} />
+            <AddObservationButton
+              childId={childId}
+              className="print:hidden"
+            />
           </div>
         </div>
 

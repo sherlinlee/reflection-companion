@@ -28,14 +28,17 @@ export function ObservationList({ observations }: Props) {
     <div className="flex flex-col gap-3">
       {observations.length > 0 && (
         <div className="relative">
-          <Search className="pointer-events-none absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-[#8a9490]" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-[#c8a85a]" />
           <input
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search observations…"
-            aria-label="Search observations"
-            className={cn(fieldClass, "pl-9")}
+            placeholder="Search"
+            aria-label="Search"
+            className={cn(
+              fieldClass,
+              "py-[0.4rem] pl-8 pr-3 text-[13px] print:hidden",
+            )}
           />
         </div>
       )}
