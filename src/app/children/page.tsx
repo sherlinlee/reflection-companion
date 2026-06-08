@@ -2,8 +2,10 @@ import { redirect } from "next/navigation";
 
 import { AddIndividualForm } from "@/components/add-individual-form";
 import { AppHeader } from "@/components/app-header";
+import { GroupObservationForm } from "@/components/group-observation-form";
+import { MomentumStrip } from "@/components/momentum-strip";
 import { PageShell } from "@/components/page-shell";
-import { StudentsPageContent } from "@/components/students-page-content";
+import { StudentList } from "@/components/student-list";
 import { hasSupabaseEnv } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 import type { Child } from "@/lib/types";
@@ -22,7 +24,7 @@ export default async function ChildrenPage() {
 
   let countMap: Record<string, number> = {};
   let lastObsMap: Record<string, string> = {};
-  let weekObs: { created_at: string; child_id: string }[] = [];
+  let weekObs: { created_at: string }[] = [];
 
   if (childIds.length > 0) {
     const { data: obsCounts, error: obsCountsError } = await supabase
@@ -72,11 +74,10 @@ export default async function ChildrenPage() {
 
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 6);
-    weekAgo.setHours(0, 0, 0, 0);
 
     const { data: weekData, error: weekObsError } = await supabase
       .from("observations")
-      .select("created_at, child_id")
+      .select("created_at")
       .in("child_id", childIds)
       .gte("created_at", weekAgo.toISOString());
 
@@ -88,16 +89,7 @@ export default async function ChildrenPage() {
     }
 
     weekObs = weekData ?? [];
-
-    console.log("[children/page] data loaded:", {
-      students: childIds.length,
-      observationRows: obsCounts?.length ?? 0,
-      countedStudents: Object.keys(countMap).length,
-      weekObs: weekObs.length,
-    });
   }
-
-  console.log("countMap", countMap);
 
   return (
     <>
@@ -108,11 +100,14 @@ export default async function ChildrenPage() {
       <PageShell>
         <AddIndividualForm />
 
-        <StudentsPageContent
+        {list.length >= 2 && <GroupObservationForm students={list} />}
+
+        {list.length > 0 && <MomentumStrip observations={weekObs} />}
+
+        <StudentList
           students={list}
           countMap={countMap}
           lastObsMap={lastObsMap}
-          weekObs={weekObs}
         />
       </PageShell>
     </>
