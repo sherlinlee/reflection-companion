@@ -51,35 +51,21 @@ export function StudentsPageContent({
     return students.filter((s) => s.class_name?.trim() === classFilter);
   }, [students, classFilter]);
 
-  const filteredIds = useMemo(
+  const filteredStudentIds = useMemo(
     () => new Set(filteredStudents.map((s) => s.id)),
     [filteredStudents],
   );
 
-  const filteredCountMap = useMemo(() => {
-    const next: Record<string, number> = {};
-    for (const id of filteredIds) {
-      if (countMap[id] != null) next[id] = countMap[id];
-    }
-    return next;
-  }, [countMap, filteredIds]);
-
-  const filteredLastObsMap = useMemo(() => {
-    const next: Record<string, string> = {};
-    for (const id of filteredIds) {
-      if (lastObsMap[id]) next[id] = lastObsMap[id];
-    }
-    return next;
-  }, [lastObsMap, filteredIds]);
-
   const filteredWeekObs = useMemo(
-    () => weekObs.filter((o) => filteredIds.has(o.child_id)),
-    [weekObs, filteredIds],
+    () => weekObs.filter((o) => filteredStudentIds.has(o.child_id)),
+    [weekObs, filteredStudentIds],
   );
 
   return (
     <>
-      {students.length > 0 && <MomentumStrip observations={filteredWeekObs} />}
+      {students.length > 0 && (
+        <MomentumStrip observations={filteredWeekObs} />
+      )}
 
       {showFilter && (
         <div className="flex flex-wrap gap-2">
@@ -115,8 +101,8 @@ export function StudentsPageContent({
 
       <StudentsAndGroupObservation
         students={filteredStudents}
-        countMap={filteredCountMap}
-        lastObsMap={filteredLastObsMap}
+        countMap={countMap}
+        lastObsMap={lastObsMap}
       />
     </>
   );

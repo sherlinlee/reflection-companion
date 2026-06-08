@@ -47,9 +47,9 @@ export function StudentsAndGroupObservation({
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-start">
-      {/* Mobile: student list first */}
-      <div className="order-1 lg:order-2">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:items-start">
+      {/* Mobile: student list first; desktop: right column */}
+      <div className="order-1 min-w-0 sm:order-2">
         <StudentList
           students={students}
           countMap={countMap}
@@ -61,14 +61,14 @@ export function StudentsAndGroupObservation({
         />
       </div>
 
-      {/* Mobile: group form below list; desktop: left column */}
-      <section className="spark-panel-highlight order-2 lg:order-1">
+      {/* Mobile: below list; desktop: left column */}
+      <section className="spark-panel-highlight order-2 min-w-0 sm:order-1">
         <h2 className={`${sectionLabelClass} mb-3`}>Group observation</h2>
-        <p className="mb-4 text-[12px] leading-[1.6] text-[#8a9490]">
-          Check students in the list, write one observation — each gets their own
-          saved entry and reflection.
+        <p className="mb-3 text-[12px] leading-[1.6] text-[#8a9490]">
+          Check students in the list, write one observation — each gets their
+          own saved entry and reflection.
         </p>
-        <form action={createGroupObservation} className="flex flex-col gap-4">
+        <form action={createGroupObservation} className="flex flex-col gap-3">
           {[...selectedIds].map((id) => (
             <input key={id} type="hidden" name="child_ids" value={id} />
           ))}
@@ -76,10 +76,10 @@ export function StudentsAndGroupObservation({
           <textarea
             name="observation_text"
             required
-            rows={6}
+            rows={4}
             maxLength={20000}
             placeholder="Write what you saw and heard — include context, what each child said or did, and any interactions between them."
-            className={`${fieldClass} resize-y`}
+            className={`${fieldClass} min-h-[120px] resize-y`}
           />
 
           {selectedNames.length > 0 && (
@@ -87,10 +87,6 @@ export function StudentsAndGroupObservation({
               {selectedNames.join(" · ")}
             </p>
           )}
-
-          <p className="text-[12px] text-[#8a9490]">
-            Richer observations lead to richer reflections.
-          </p>
 
           <FormSubmitButton
             variant="cta"

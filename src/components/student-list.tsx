@@ -181,32 +181,24 @@ export function StudentList({
                         rowTint,
                       )}
                     >
-                      <label
+                      <button
+                        type="button"
+                        role="checkbox"
+                        aria-checked={isGroupSelected}
+                        aria-label={`Include ${child.name} in group observation`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          groupSelect.onToggle(child.id);
+                        }}
                         className={cn(
-                          "group flex shrink-0 cursor-pointer items-center rounded-full border border-[rgba(154,124,46,0.2)] bg-white px-2 py-1.5 transition-colors",
-                          isGroupSelected &&
-                            "border-[#9a7c2e] bg-[#faf4e6] text-[#9a7c2e]",
+                          "flex size-[18px] shrink-0 items-center justify-center rounded-full border-[1.5px] text-[11px] leading-none transition-colors",
+                          isGroupSelected
+                            ? "border-[#9a7c2e] bg-[#9a7c2e] text-white"
+                            : "border-[rgba(154,124,46,0.3)] bg-white text-transparent",
                         )}
-                        onClick={(e) => e.stopPropagation()}
                       >
-                        <input
-                          type="checkbox"
-                          checked={isGroupSelected}
-                          onChange={() => groupSelect.onToggle(child.id)}
-                          aria-label={`Include ${child.name} in group observation`}
-                          className="sr-only"
-                        />
-                        <span
-                          className={cn(
-                            "flex size-4 items-center justify-center rounded-full border text-[10px] transition-colors",
-                            isGroupSelected
-                              ? "border-[#9a7c2e] bg-[#9a7c2e] text-white"
-                              : "border-[rgba(154,124,46,0.3)] text-transparent",
-                          )}
-                        >
-                          ✓
-                        </span>
-                      </label>
+                        ✓
+                      </button>
 
                       <Link
                         href={`/children/${child.id}`}

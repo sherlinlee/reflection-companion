@@ -25,10 +25,17 @@ export default async function ChildrenPage() {
   let weekObs: { created_at: string; child_id: string }[] = [];
 
   if (childIds.length > 0) {
-    const { data: obsCounts } = await supabase
+    const { data: obsCounts, error: obsCountsError } = await supabase
       .from("observations")
       .select("child_id")
       .in("child_id", childIds);
+
+    if (obsCountsError) {
+      console.error(
+        "[children/page] observation counts failed:",
+        obsCountsError.message,
+      );
+    }
 
     countMap = (obsCounts ?? []).reduce(
       (acc, o) => {
@@ -44,6 +51,13 @@ export default async function ChildrenPage() {
       .in("child_id", childIds)
       .order("created_at", { ascending: false });
 
+    if (lastObsResult.error) {
+      console.error(
+        "[children/page] last observations failed:",
+        lastObsResult.error.message,
+      );
+    }
+
     lastObsMap = (lastObsResult.data ?? []).reduce(
       (acc, o) => {
         if (!acc[o.child_id]) acc[o.child_id] = o.created_at;
@@ -54,14 +68,29 @@ export default async function ChildrenPage() {
 
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 6);
+    weekAgo.setHours(0, 0, 0, 0);
 
-    const { data: weekData } = await supabase
+    const { data: weekData, error: weekObsError } = await supabase
       .from("observations")
       .select("created_at, child_id")
       .in("child_id", childIds)
       .gte("created_at", weekAgo.toISOString());
 
+    if (weekObsError) {
+      console.error(
+        "[children/page] week observations failed:",
+        weekObsError.message,
+      );
+    }
+
     weekObs = weekData ?? [];
+
+    console.log("[children/page] data loaded:", {
+      students: childIds.length,
+      observationRows: obsCounts?.length ?? 0,
+      countedStudents: Object.keys(countMap).length,
+      weekObs: weekObs.length,
+    });
   }
 
   return (
