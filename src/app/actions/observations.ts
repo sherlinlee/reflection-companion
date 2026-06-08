@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 
 export type CreateObservationResult = {
   error?: string;
+  observationId?: string;
 };
 
 function parseMediaPath(
@@ -22,6 +23,23 @@ function parseMediaPath(
   return raw;
 }
 
+function buildObservationInsert(
+  child_id: string,
+  observation_text: string,
+  image_url: string | null,
+  audio_url: string | null,
+) {
+  const row: {
+    child_id: string;
+    observation_text: string;
+    image_url?: string;
+    audio_url?: string;
+  } = { child_id, observation_text };
+  if (image_url) row.image_url = image_url;
+  if (audio_url) row.audio_url = audio_url;
+  return row;
+}
+
 export async function createObservation(
   formData: FormData,
 ): Promise<CreateObservationResult> {
@@ -30,16 +48,26 @@ export async function createObservation(
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) redirect("/login");
+  if (!user) {
+    console.error("createObservation error: not authenticated");
+    redirect("/login");
+  }
 
   const primaryChildId = String(formData.get("child_id") ?? "");
   const observation_text = String(formData.get("observation_text") ?? "").trim();
 
+  console.log("primaryChildId:", primaryChildId);
+  console.log("observation_text length:", observation_text.length);
+
   if (!primaryChildId || !observation_text) {
+    console.error("createObservation error: missing child_id or observation_text");
     return { error: "save_failed" };
   }
 
-  const additionalChildIds = formData.getAll("additional_child_ids").map(String);
+  const additionalChildIds = formData
+    .getAll("additional_child_ids")
+    .map(String)
+    .filter(Boolean);
   const allChildIds = Array.from(new Set([primaryChildId, ...additionalChildIds]));
 
   const imageRaw = String(formData.get("image_url") ?? "").trim();
@@ -48,31 +76,63 @@ export async function createObservation(
   const audio_url = parseMediaPath(formData.get("audio_url"), user.id, "audio");
 
   if ((imageRaw && !image_url) || (audioRaw && !audio_url)) {
+    console.error("createObservation error: invalid media paths", {
+      imageRaw: Boolean(imageRaw),
+      audioRaw: Boolean(audioRaw),
+    });
     return { error: "invalid_media" };
   }
 
-  const inserts = allChildIds.map((child_id) => ({
-    child_id,
-    observation_text,
-    image_url,
-    audio_url,
-  }));
+  const { data: ownedChildren, error: childrenError } = await supabase
+    .from("children")
+    .select("id")
+    .in("id", allChildIds);
+
+  if (childrenError) {
+    console.error(
+      "createObservation error: child lookup failed",
+      JSON.stringify(childrenError),
+    );
+    return { error: "save_failed" };
+  }
+
+  const ownedIds = new Set((ownedChildren ?? []).map((c) => c.id));
+  const accessibleChildIds = allChildIds.filter((id) => ownedIds.has(id));
+
+  if (!accessibleChildIds.includes(primaryChildId)) {
+    console.error("createObservation error: primary child not accessible");
+    return { error: "save_failed" };
+  }
+
+  const inserts = accessibleChildIds.map((child_id) =>
+    buildObservationInsert(child_id, observation_text, image_url, audio_url),
+  );
+
+  console.log("inserting observations:", inserts);
 
   const { data, error } = await supabase
     .from("observations")
     .insert(inserts)
     .select("id, child_id");
 
-  if (error || !data || data.length === 0) {
+  if (error) {
+    console.error("supabase insert error:", JSON.stringify(error));
     return { error: "save_failed" };
   }
 
-  for (const childId of allChildIds) {
+  if (!data || data.length === 0) {
+    console.error("createObservation error: insert returned no rows");
+    return { error: "save_failed" };
+  }
+
+  for (const childId of accessibleChildIds) {
     revalidatePath(`/children/${childId}`);
   }
 
-  const primaryObs = data.find((d) => d.child_id === primaryChildId) ?? data[0];
-  redirect(`/observations/${primaryObs.id}`);
+  const primaryObs =
+    data.find((d) => d.child_id === primaryChildId) ?? data[0];
+
+  return { observationId: primaryObs.id };
 }
 
 export async function createGroupObservation(formData: FormData) {

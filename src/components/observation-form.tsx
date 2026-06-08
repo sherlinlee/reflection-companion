@@ -2,6 +2,8 @@
 
 import { useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { Loader2, Mic, MicOff } from "lucide-react";
 
 import { createObservation } from "@/app/actions/observations";
@@ -54,6 +56,7 @@ const nelChipClass =
   "shrink-0 rounded-full border border-[rgba(83,74,183,0.2)] bg-[#f0eef8] px-3 py-1 text-[12px] text-[#534AB7] transition-colors hover:bg-[#e6e3f5]";
 
 export function ObservationForm({ childId, others }: Props) {
+  const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -274,14 +277,31 @@ export function ObservationForm({ childId, others }: Props) {
       saveData.append("additional_child_ids", id);
     }
 
-    const result = await createObservation(saveData);
+    try {
+      const result = await createObservation(saveData);
 
-    if (result?.error) {
+      if (result?.error) {
+        await cleanupClientUploadedPaths(uploadedPaths);
+        setErrorMessage(
+          MEDIA_UPLOAD_ERROR_MESSAGES[result.error] ??
+            "Could not save the observation. Try again.",
+        );
+        setPhase("idle");
+        return;
+      }
+
+      if (result?.observationId) {
+        router.push(`/observations/${result.observationId}`);
+        return;
+      }
+
       await cleanupClientUploadedPaths(uploadedPaths);
-      setErrorMessage(
-        MEDIA_UPLOAD_ERROR_MESSAGES[result.error] ??
-          "Could not save the observation. Try again.",
-      );
+      setErrorMessage("Could not save the observation. Try again.");
+      setPhase("idle");
+    } catch (err) {
+      if (isRedirectError(err)) throw err;
+      await cleanupClientUploadedPaths(uploadedPaths);
+      setErrorMessage("Could not save the observation. Try again.");
       setPhase("idle");
     }
   }
