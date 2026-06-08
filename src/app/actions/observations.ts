@@ -6,20 +6,38 @@ import { redirect } from "next/navigation";
 import { removeObservationMediaPaths } from "@/lib/observation-media-storage";
 import { createClient } from "@/lib/supabase/server";
 
+export type CreateObservationInput = {
+  child_id: string;
+  observation_text: string;
+  image_url?: string;
+  audio_url?: string;
+  additional_child_ids?: string[];
+};
+
 export type CreateObservationResult = {
   error?: string;
+  reason?: string;
   observationId?: string;
 };
 
 function parseMediaPath(
-  value: FormDataEntryValue | null,
+  value: string | null | undefined,
   userId: string,
   folder: "images" | "audio",
 ): string | null {
   const raw = String(value ?? "").trim();
   if (!raw) return null;
   const prefix = `${userId}/${folder}/`;
-  if (!raw.startsWith(prefix)) return null;
+  if (!raw.startsWith(prefix)) {
+    console.error("createObservation error: media path prefix mismatch", {
+      folder,
+      expectedPrefix: prefix,
+      receivedPrefix: raw.slice(0, prefix.length),
+      pathUserId: raw.split("/")[0],
+      authUserId: userId,
+    });
+    return null;
+  }
   return raw;
 }
 
@@ -40,8 +58,31 @@ function buildObservationInsert(
   return row;
 }
 
+async function resolvePrimaryObservationId(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  primaryChildId: string,
+): Promise<string | null> {
+  const { data, error } = await supabase
+    .from("observations")
+    .select("id")
+    .eq("child_id", primaryChildId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    console.error(
+      "createObservation error: could not fetch inserted observation",
+      JSON.stringify(error),
+    );
+    return null;
+  }
+
+  return data?.id ?? null;
+}
+
 export async function createObservation(
-  formData: FormData,
+  input: CreateObservationInput,
 ): Promise<CreateObservationResult> {
   const supabase = await createClient();
   const {
@@ -50,89 +91,108 @@ export async function createObservation(
 
   if (!user) {
     console.error("createObservation error: not authenticated");
-    redirect("/login");
+    return { error: "not_authenticated" };
   }
 
-  const primaryChildId = String(formData.get("child_id") ?? "");
-  const observation_text = String(formData.get("observation_text") ?? "").trim();
+  const primaryChildId = String(input.child_id ?? "").trim();
+  const observation_text = String(input.observation_text ?? "").trim();
 
   console.log("primaryChildId:", primaryChildId);
   console.log("observation_text length:", observation_text.length);
 
   if (!primaryChildId || !observation_text) {
     console.error("createObservation error: missing child_id or observation_text");
-    return { error: "save_failed" };
+    return { error: "save_failed", reason: "missing_fields" };
   }
 
-  const additionalChildIds = formData
-    .getAll("additional_child_ids")
+  const additionalChildIds = (input.additional_child_ids ?? [])
     .map(String)
     .filter(Boolean);
   const allChildIds = Array.from(new Set([primaryChildId, ...additionalChildIds]));
 
-  const imageRaw = String(formData.get("image_url") ?? "").trim();
-  const audioRaw = String(formData.get("audio_url") ?? "").trim();
-  const image_url = parseMediaPath(formData.get("image_url"), user.id, "images");
-  const audio_url = parseMediaPath(formData.get("audio_url"), user.id, "audio");
+  const imageRaw = String(input.image_url ?? "").trim();
+  const audioRaw = String(input.audio_url ?? "").trim();
+  const image_url = parseMediaPath(input.image_url, user.id, "images");
+  const audio_url = parseMediaPath(input.audio_url, user.id, "audio");
 
   if ((imageRaw && !image_url) || (audioRaw && !audio_url)) {
     console.error("createObservation error: invalid media paths", {
       imageRaw: Boolean(imageRaw),
       audioRaw: Boolean(audioRaw),
     });
-    return { error: "invalid_media" };
+    return { error: "invalid_media", reason: "path_validation_failed" };
   }
 
-  const { data: ownedChildren, error: childrenError } = await supabase
-    .from("children")
-    .select("id")
-    .in("id", allChildIds);
-
-  if (childrenError) {
-    console.error(
-      "createObservation error: child lookup failed",
-      JSON.stringify(childrenError),
-    );
-    return { error: "save_failed" };
-  }
-
-  const ownedIds = new Set((ownedChildren ?? []).map((c) => c.id));
-  const accessibleChildIds = allChildIds.filter((id) => ownedIds.has(id));
-
-  if (!accessibleChildIds.includes(primaryChildId)) {
-    console.error("createObservation error: primary child not accessible");
-    return { error: "save_failed" };
-  }
-
-  const inserts = accessibleChildIds.map((child_id) =>
-    buildObservationInsert(child_id, observation_text, image_url, audio_url),
+  const primaryInsert = buildObservationInsert(
+    primaryChildId,
+    observation_text,
+    image_url,
+    audio_url,
   );
 
-  console.log("inserting observations:", inserts);
+  console.log("inserting observations:", [primaryInsert]);
 
-  const { data, error } = await supabase
+  let observationId: string | null = null;
+
+  const { data: primaryRow, error: primaryError } = await supabase
     .from("observations")
-    .insert(inserts)
-    .select("id, child_id");
+    .insert(primaryInsert)
+    .select("id")
+    .single();
 
-  if (error) {
-    console.error("supabase insert error:", JSON.stringify(error));
-    return { error: "save_failed" };
+  if (primaryError) {
+    console.error("supabase insert error:", JSON.stringify(primaryError));
+
+    const { error: insertOnlyError } = await supabase
+      .from("observations")
+      .insert(primaryInsert);
+
+    if (insertOnlyError) {
+      return {
+        error: "save_failed",
+        reason: insertOnlyError.message ?? primaryError.message,
+      };
+    }
+
+    observationId = await resolvePrimaryObservationId(supabase, primaryChildId);
+    if (!observationId) {
+      return {
+        error: "save_failed",
+        reason: "insert_succeeded_but_id_unavailable",
+      };
+    }
+  } else {
+    observationId = primaryRow.id;
   }
 
-  if (!data || data.length === 0) {
-    console.error("createObservation error: insert returned no rows");
-    return { error: "save_failed" };
+  const extraChildIds = allChildIds.filter((id) => id !== primaryChildId);
+  if (extraChildIds.length > 0) {
+    const extraInserts = extraChildIds.map((child_id) =>
+      buildObservationInsert(child_id, observation_text, image_url, audio_url),
+    );
+    console.log("inserting additional observations:", extraInserts);
+
+    const { error: extraError } = await supabase
+      .from("observations")
+      .insert(extraInserts);
+
+    if (extraError) {
+      console.error(
+        "createObservation error: additional child insert failed",
+        JSON.stringify(extraError),
+      );
+    }
   }
 
-  for (const childId of accessibleChildIds) {
+  if (!observationId) {
+    return { error: "save_failed", reason: "missing_observation_id" };
+  }
+
+  for (const childId of allChildIds) {
     revalidatePath(`/children/${childId}`);
   }
 
-  const primaryObs =
-    data.find((d) => d.child_id === primaryChildId) ?? data[0];
-
-  return { observationId: primaryObs.id };
+  return { observationId };
 }
 
 export async function createGroupObservation(formData: FormData) {

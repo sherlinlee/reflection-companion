@@ -56,6 +56,7 @@ export const MEDIA_UPLOAD_ERROR_MESSAGES: Record<string, string> = {
   too_many_audio: "Only one voice memo per observation (v1).",
   save_failed: "Could not save the observation. Try again.",
   invalid_media: "Invalid media attachment. Try uploading again.",
+  not_authenticated: "Your session expired. Please sign in again.",
 };
 
 export function validateImageFile(file: File): string | null {
