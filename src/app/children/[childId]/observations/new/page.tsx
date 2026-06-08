@@ -7,14 +7,21 @@ import { PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 import type { Child } from "@/lib/types";
+import { MEDIA_UPLOAD_ERROR_MESSAGES } from "@/lib/observation-media";
 import { cardClass, fieldClass, sectionLabelClass } from "@/lib/ui-classes";
 
 export default async function NewObservationPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ childId: string }>;
+  searchParams: Promise<{ error?: string }>;
 }) {
   const { childId } = await params;
+  const { error: uploadError } = await searchParams;
+  const uploadErrorMessage = uploadError
+    ? MEDIA_UPLOAD_ERROR_MESSAGES[uploadError]
+    : null;
   const supabase = await createClient();
 
   const { data: child } = await supabase
@@ -77,39 +84,50 @@ export default async function NewObservationPage({
             Richer observations lead to richer reflections.
           </p>
 
-          {/* ── Media attachments ── */}
+          {/* ── Media attachments (v1: one photo + one voice memo) ── */}
           <div className="border-t border-[rgba(154,124,46,0.1)] pt-4">
-            <p className={`${sectionLabelClass} mb-3`}>Attach media</p>
+            <p className={`${sectionLabelClass} mb-1`}>Attach media</p>
+            <p className="mb-3 text-[12px] leading-[1.5] text-[#8a9490]">
+              Optional — one photo and one voice memo per observation. Files are
+              stored in Supabase Storage; only paths are saved on the observation.
+              Photos are compressed before upload when possible.
+            </p>
+            {uploadErrorMessage && (
+              <p
+                role="alert"
+                className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-800"
+              >
+                {uploadErrorMessage}
+              </p>
+            )}
             <div className="grid gap-3 sm:grid-cols-2">
-              {/* Photo */}
               <label className="flex cursor-pointer flex-col gap-1.5">
                 <span className="text-[12px] font-medium text-[#3d4f4c]">
-                  Photo
+                  Photo (1)
                 </span>
                 <input
                   type="file"
                   name="image"
-                  accept="image/jpeg,image/png,image/webp,image/heic"
+                  accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
                   className="block w-full rounded-lg border border-[rgba(154,124,46,0.2)] bg-white px-3 py-2 text-[12px] text-[#8a9490] file:mr-3 file:rounded-md file:border-0 file:bg-[#faf4e6] file:px-2.5 file:py-1 file:text-[11px] file:font-medium file:text-[#9a7c2e] hover:border-[rgba(154,124,46,0.35)]"
                 />
                 <span className="text-[11px] text-[#8a9490]">
-                  JPEG, PNG, WEBP, HEIC · max 10MB
+                  JPEG, PNG, WEBP, HEIC · max 10 MB
                 </span>
               </label>
 
-              {/* Voice memo */}
               <label className="flex cursor-pointer flex-col gap-1.5">
                 <span className="text-[12px] font-medium text-[#3d4f4c]">
-                  Voice memo
+                  Voice memo (1)
                 </span>
                 <input
                   type="file"
                   name="audio"
-                  accept="audio/mp4,audio/mpeg,audio/webm,audio/x-m4a"
+                  accept="audio/mp4,audio/mpeg,audio/webm,audio/x-m4a,audio/m4a"
                   className="block w-full rounded-lg border border-[rgba(154,124,46,0.2)] bg-white px-3 py-2 text-[12px] text-[#8a9490] file:mr-3 file:rounded-md file:border-0 file:bg-[#faf4e6] file:px-2.5 file:py-1 file:text-[11px] file:font-medium file:text-[#9a7c2e] hover:border-[rgba(154,124,46,0.35)]"
                 />
                 <span className="text-[11px] text-[#8a9490]">
-                  M4A, MP3, MP4, WEBM · max 50MB
+                  M4A, MP3, MP4, WEBM · max 50 MB
                 </span>
               </label>
             </div>

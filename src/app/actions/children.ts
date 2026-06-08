@@ -5,7 +5,14 @@ import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
 
-export async function createChild(formData: FormData) {
+export type CreateChildState = {
+  error: string | null;
+};
+
+export async function createChild(
+  _prevState: CreateChildState,
+  formData: FormData,
+): Promise<CreateChildState> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -17,7 +24,7 @@ export async function createChild(formData: FormData) {
   const class_name = String(formData.get("class_name") ?? "").trim() || null;
   const age = ageRaw ? parseInt(ageRaw, 10) : null;
 
-  if (!name) redirect("/children");
+  if (!name) return { error: "Name is required." };
 
   const { error } = await supabase.from("children").insert({
     educator_id: user.id,
@@ -26,7 +33,7 @@ export async function createChild(formData: FormData) {
     class_name,
   });
 
-  if (error) redirect("/children");
+  if (error) return { error: "Could not add student. Try again." };
 
   revalidatePath("/children");
   redirect("/children");

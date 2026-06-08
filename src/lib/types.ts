@@ -11,7 +11,9 @@ export type Observation = {
   id: string;
   child_id: string;
   observation_text: string;
+  /** Supabase Storage object path (not a public URL). */
   image_url: string | null;
+  /** Supabase Storage object path (not a public URL). */
   audio_url: string | null;
   created_at: string;
 };

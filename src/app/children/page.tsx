@@ -2,8 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Plus, Users } from "lucide-react";
 
-import { createChild } from "@/app/actions/children";
 import { createGroupObservation } from "@/app/actions/observations";
+import { AddIndividualForm } from "@/components/add-individual-form";
 import { AppHeader } from "@/components/app-header";
 import { PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
@@ -39,37 +39,7 @@ export default async function ChildrenPage() {
       />
       <PageShell>
 
-        {/* ── Add individual ── */}
-        <section className={cardClass}>
-          <h2 className={`${sectionLabelClass} mb-4`}>Add individual</h2>
-          <form action={createChild} className="flex flex-col gap-3">
-            <input
-              name="name"
-              required
-              placeholder="Name"
-              className={fieldClass}
-            />
-            <div className="grid gap-3 sm:grid-cols-2">
-              <input
-                name="age"
-                type="number"
-                min={0}
-                max={12}
-                placeholder="Age (optional)"
-                className={fieldClass}
-              />
-              <input
-                name="class_name"
-                placeholder="Class (optional)"
-                className={fieldClass}
-              />
-            </div>
-            <Button type="submit" variant="cta" className="w-full sm:w-auto" size="lg">
-              <Plus />
-              Add individual
-            </Button>
-          </form>
-        </section>
+        <AddIndividualForm />
 
         {/* ── Group observation ── */}
         {list.length >= 2 && (
