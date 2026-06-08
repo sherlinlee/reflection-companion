@@ -1,5 +1,7 @@
 "use server";
 
+import { randomUUID } from "node:crypto";
+
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -46,39 +48,19 @@ function buildObservationInsert(
   observation_text: string,
   image_url: string | null,
   audio_url: string | null,
+  id?: string,
 ) {
   const row: {
+    id?: string;
     child_id: string;
     observation_text: string;
     image_url?: string;
     audio_url?: string;
   } = { child_id, observation_text };
+  if (id) row.id = id;
   if (image_url) row.image_url = image_url;
   if (audio_url) row.audio_url = audio_url;
   return row;
-}
-
-async function resolvePrimaryObservationId(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  primaryChildId: string,
-): Promise<string | null> {
-  const { data, error } = await supabase
-    .from("observations")
-    .select("id")
-    .eq("child_id", primaryChildId)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  if (error) {
-    console.error(
-      "createObservation error: could not fetch inserted observation",
-      JSON.stringify(error),
-    );
-    return null;
-  }
-
-  return data?.id ?? null;
 }
 
 export async function createObservation(
@@ -123,46 +105,27 @@ export async function createObservation(
     return { error: "invalid_media", reason: "path_validation_failed" };
   }
 
+  const observationId = randomUUID();
   const primaryInsert = buildObservationInsert(
     primaryChildId,
     observation_text,
     image_url,
     audio_url,
+    observationId,
   );
 
   console.log("inserting observations:", [primaryInsert]);
 
-  let observationId: string | null = null;
-
-  const { data: primaryRow, error: primaryError } = await supabase
+  const { error: primaryError } = await supabase
     .from("observations")
-    .insert(primaryInsert)
-    .select("id")
-    .single();
+    .insert(primaryInsert);
 
   if (primaryError) {
     console.error("supabase insert error:", JSON.stringify(primaryError));
-
-    const { error: insertOnlyError } = await supabase
-      .from("observations")
-      .insert(primaryInsert);
-
-    if (insertOnlyError) {
-      return {
-        error: "save_failed",
-        reason: insertOnlyError.message ?? primaryError.message,
-      };
-    }
-
-    observationId = await resolvePrimaryObservationId(supabase, primaryChildId);
-    if (!observationId) {
-      return {
-        error: "save_failed",
-        reason: "insert_succeeded_but_id_unavailable",
-      };
-    }
-  } else {
-    observationId = primaryRow.id;
+    return {
+      error: "save_failed",
+      reason: primaryError.message,
+    };
   }
 
   const extraChildIds = allChildIds.filter((id) => id !== primaryChildId);
@@ -182,10 +145,6 @@ export async function createObservation(
         JSON.stringify(extraError),
       );
     }
-  }
-
-  if (!observationId) {
-    return { error: "save_failed", reason: "missing_observation_id" };
   }
 
   for (const childId of allChildIds) {

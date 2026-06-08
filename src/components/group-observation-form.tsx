@@ -13,9 +13,7 @@ type Props = {
 };
 
 export function GroupObservationForm({ students, selectedIds }: Props) {
-  const selectedNames = students
-    .filter((s) => selectedIds.includes(s.id))
-    .map((s) => s.name);
+  const selectedStudents = students.filter((s) => selectedIds.includes(s.id));
 
   return (
     <section className="spark-panel-highlight">
@@ -29,10 +27,17 @@ export function GroupObservationForm({ students, selectedIds }: Props) {
           <input key={id} type="hidden" name="child_ids" value={id} />
         ))}
 
-        {selectedNames.length > 0 && (
-          <p className="text-[11px] font-medium text-[#9a7c2e]">
-            {selectedNames.map((name) => `✓ ${name}`).join(" · ")}
-          </p>
+        {selectedStudents.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {selectedStudents.map((student) => (
+              <span
+                key={student.id}
+                className="inline-flex items-center gap-1 rounded-full border border-[#9a7c2e] bg-[#faf4e6] px-2.5 py-0.5 text-[11px] font-medium text-[#9a7c2e]"
+              >
+                ✓ {student.name}
+              </span>
+            ))}
+          </div>
         )}
 
         <textarea
