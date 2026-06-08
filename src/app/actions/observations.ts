@@ -106,82 +106,24 @@ export async function createObservation(
     return { error: "invalid_media", reason: "path_validation_failed" };
   }
 
-  const observationId = randomUUID();
-  const primaryInsert = buildObservationInsert(
-    primaryChildId,
-    observation_text,
-    image_url,
-    audio_url,
-    observationId,
+  const inserts = allChildIds.map((child_id) =>
+    buildObservationInsert(child_id, observation_text, image_url, audio_url),
   );
 
-  console.log("inserting observations:", [primaryInsert]);
+  console.log("inserting observations:", inserts);
 
-  const { error: primaryError } = await supabase
-    .from("observations")
-    .insert(primaryInsert);
+  const { error } = await supabase.from("observations").insert(inserts);
 
-  if (primaryError) {
-    console.error("supabase insert error:", JSON.stringify(primaryError));
-    return {
-      error: "save_failed",
-      reason: primaryError.message,
-    };
+  if (error) {
+    console.error("supabase insert error:", JSON.stringify(error));
+    redirect(`/children/${primaryChildId}/observations/new`);
   }
-
-  const { data: verify, error: verifyError } = await supabase
-    .from("observations")
-    .select("id")
-    .eq("id", observationId)
-    .maybeSingle();
-
-  if (!verify) {
-    const { data: childRow } = await supabase
-      .from("children")
-      .select("educator_id")
-      .eq("id", primaryChildId)
-      .maybeSingle();
-
-    console.error("createObservation: insert ok but row not readable", {
-      observationId,
-      userId: user.id,
-      childEducatorId: childRow?.educator_id,
-      verifyError: verifyError?.message,
-    });
-
-    return {
-      error: "save_failed",
-      reason: "insert_ok_but_select_blocked_check_rls_migrations",
-      childId: primaryChildId,
-    };
-  }
-
-  const extraChildIds = allChildIds.filter((id) => id !== primaryChildId);
-  if (extraChildIds.length > 0) {
-    const extraInserts = extraChildIds.map((child_id) =>
-      buildObservationInsert(child_id, observation_text, image_url, audio_url),
-    );
-    console.log("inserting additional observations:", extraInserts);
-
-    const { error: extraError } = await supabase
-      .from("observations")
-      .insert(extraInserts);
-
-    if (extraError) {
-      console.error(
-        "createObservation error: additional child insert failed",
-        JSON.stringify(extraError),
-      );
-    }
-  }
-
-  revalidatePath(`/observations/${observationId}`);
 
   for (const childId of allChildIds) {
     revalidatePath(`/children/${childId}`);
   }
 
-  redirect(`/observations/${observationId}`);
+  redirect(`/children/${primaryChildId}`);
 }
 
 export async function createGroupObservation(formData: FormData) {
