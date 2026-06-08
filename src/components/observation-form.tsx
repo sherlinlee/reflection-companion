@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { unstable_rethrow } from "next/navigation";
 import { Loader2, Mic, MicOff } from "lucide-react";
 
 import { createObservation } from "@/app/actions/observations";
@@ -55,7 +55,6 @@ const nelChipClass =
   "shrink-0 rounded-full border border-[rgba(83,74,183,0.2)] bg-[#f0eef8] px-3 py-1 text-[12px] text-[#534AB7] transition-colors hover:bg-[#e6e3f5]";
 
 export function ObservationForm({ childId, others }: Props) {
-  const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -270,42 +269,35 @@ export function ObservationForm({ childId, others }: Props) {
       .map(String)
       .filter(Boolean);
 
-    const result = await createObservation({
-      child_id: childId,
-      observation_text,
-      image_url: image_url ?? undefined,
-      audio_url: audio_url ?? undefined,
-      additional_child_ids: additionalChildIds,
-    });
+    try {
+      const result = await createObservation({
+        child_id: childId,
+        observation_text,
+        image_url: image_url ?? undefined,
+        audio_url: audio_url ?? undefined,
+        additional_child_ids: additionalChildIds,
+      });
 
-    if (result?.error) {
-      await cleanupClientUploadedPaths(uploadedPaths);
+      if (result?.error) {
+        await cleanupClientUploadedPaths(uploadedPaths);
 
-      if (result.error === "not_authenticated") {
-        window.location.href = "/login";
-        return;
+        if (result.error === "not_authenticated") {
+          window.location.href = "/login";
+          return;
+        }
+
+        const baseMessage =
+          MEDIA_UPLOAD_ERROR_MESSAGES[result.error] ??
+          "Could not save the observation. Try again.";
+        setErrorMessage(
+          result.reason ? `${baseMessage} (${result.reason})` : baseMessage,
+        );
+        console.error("createObservation failed:", result);
+        setPhase("idle");
       }
-
-      const baseMessage =
-        MEDIA_UPLOAD_ERROR_MESSAGES[result.error] ??
-        "Could not save the observation. Try again.";
-      setErrorMessage(
-        result.reason ? `${baseMessage} (${result.reason})` : baseMessage,
-      );
-      console.error("createObservation failed:", result);
-      setPhase("idle");
-      return;
+    } catch (err) {
+      unstable_rethrow(err);
     }
-
-    if (result?.observationId) {
-      router.push(`/observations/${result.observationId}`);
-      return;
-    }
-
-    await cleanupClientUploadedPaths(uploadedPaths);
-    setErrorMessage("Could not save the observation. Try again.");
-    console.error("createObservation failed: missing observationId", result);
-    setPhase("idle");
   }
 
   const submitLabel =

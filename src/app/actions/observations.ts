@@ -20,6 +20,7 @@ export type CreateObservationResult = {
   error?: string;
   reason?: string;
   observationId?: string;
+  childId?: string;
 };
 
 function parseMediaPath(
@@ -128,6 +129,33 @@ export async function createObservation(
     };
   }
 
+  const { data: verify, error: verifyError } = await supabase
+    .from("observations")
+    .select("id")
+    .eq("id", observationId)
+    .maybeSingle();
+
+  if (!verify) {
+    const { data: childRow } = await supabase
+      .from("children")
+      .select("educator_id")
+      .eq("id", primaryChildId)
+      .maybeSingle();
+
+    console.error("createObservation: insert ok but row not readable", {
+      observationId,
+      userId: user.id,
+      childEducatorId: childRow?.educator_id,
+      verifyError: verifyError?.message,
+    });
+
+    return {
+      error: "save_failed",
+      reason: "insert_ok_but_select_blocked_check_rls_migrations",
+      childId: primaryChildId,
+    };
+  }
+
   const extraChildIds = allChildIds.filter((id) => id !== primaryChildId);
   if (extraChildIds.length > 0) {
     const extraInserts = extraChildIds.map((child_id) =>
@@ -147,11 +175,13 @@ export async function createObservation(
     }
   }
 
+  revalidatePath(`/observations/${observationId}`);
+
   for (const childId of allChildIds) {
     revalidatePath(`/children/${childId}`);
   }
 
-  return { observationId };
+  redirect(`/observations/${observationId}`);
 }
 
 export async function createGroupObservation(formData: FormData) {
@@ -164,22 +194,45 @@ export async function createGroupObservation(formData: FormData) {
     redirect("/children");
   }
 
-  const inserts = childIds.map((child_id) => ({ child_id, observation_text }));
+  const primaryId = randomUUID();
+  const primaryChildId = childIds[0];
+  const extraChildIds = childIds.slice(1);
 
-  const { data, error } = await supabase
-    .from("observations")
-    .insert(inserts)
-    .select("id, child_id");
+  const { error: primaryError } = await supabase.from("observations").insert({
+    id: primaryId,
+    child_id: primaryChildId,
+    observation_text,
+  });
 
-  if (error || !data || data.length === 0) {
+  if (primaryError) {
+    console.error("createGroupObservation insert error:", JSON.stringify(primaryError));
     redirect("/children");
   }
+
+  if (extraChildIds.length > 0) {
+    const extraInserts = extraChildIds.map((child_id) => ({
+      child_id,
+      observation_text,
+    }));
+    const { error: extraError } = await supabase
+      .from("observations")
+      .insert(extraInserts);
+
+    if (extraError) {
+      console.error(
+        "createGroupObservation additional insert error:",
+        JSON.stringify(extraError),
+      );
+    }
+  }
+
+  revalidatePath(`/observations/${primaryId}`);
 
   for (const childId of childIds) {
     revalidatePath(`/children/${childId}`);
   }
 
-  redirect(`/observations/${data[0].id}`);
+  redirect(`/observations/${primaryId}`);
 }
 
 export async function updateObservation(formData: FormData) {
