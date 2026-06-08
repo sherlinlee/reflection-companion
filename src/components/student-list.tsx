@@ -101,11 +101,11 @@ export function StudentList({
               );
 
               const details = (
-                <span className="min-w-0 flex-1">
-                  <span className="block font-medium text-[#0F1A18]">
+                <span className="min-w-0 flex-1 overflow-hidden">
+                  <span className="block truncate font-medium text-[#0F1A18]">
                     {child.name}
                   </span>
-                  <span className="block text-xs text-[#7A9490]">
+                  <span className="block truncate text-xs text-[#7A9490]">
                     {child.class_name
                       ? `${child.class_name}${child.age != null ? ` · Age ${child.age}` : ""}`
                       : child.age != null
@@ -181,24 +181,31 @@ export function StudentList({
                         rowTint,
                       )}
                     >
-                      <button
-                        type="button"
+                      <div
                         role="checkbox"
                         aria-checked={isGroupSelected}
                         aria-label={`Include ${child.name} in group observation`}
+                        tabIndex={0}
                         onClick={(e) => {
                           e.stopPropagation();
                           groupSelect.onToggle(child.id);
                         }}
+                        onKeyDown={(e) => {
+                          if (e.key === " " || e.key === "Enter") {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            groupSelect.onToggle(child.id);
+                          }
+                        }}
                         className={cn(
-                          "flex size-[18px] shrink-0 items-center justify-center rounded-full border-[1.5px] text-[11px] leading-none transition-colors",
+                          "flex size-5 shrink-0 cursor-pointer items-center justify-center rounded-full border-[1.5px] text-[11px] leading-none transition-colors",
                           isGroupSelected
                             ? "border-[#9a7c2e] bg-[#9a7c2e] text-white"
-                            : "border-[rgba(154,124,46,0.3)] bg-white text-transparent",
+                            : "border-[rgba(154,124,46,0.25)] bg-white text-transparent",
                         )}
                       >
-                        ✓
-                      </button>
+                        {isGroupSelected ? "✓" : null}
+                      </div>
 
                       <Link
                         href={`/children/${child.id}`}

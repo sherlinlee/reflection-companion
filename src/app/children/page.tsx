@@ -37,13 +37,17 @@ export default async function ChildrenPage() {
       );
     }
 
-    countMap = (obsCounts ?? []).reduce(
-      (acc, o) => {
-        acc[o.child_id] = (acc[o.child_id] ?? 0) + 1;
+    countMap = childIds.reduce(
+      (acc, id) => {
+        acc[id] = 0;
         return acc;
       },
       {} as Record<string, number>,
     );
+
+    for (const row of obsCounts ?? []) {
+      countMap[row.child_id] = (countMap[row.child_id] ?? 0) + 1;
+    }
 
     const lastObsResult = await supabase
       .from("observations")
@@ -92,6 +96,8 @@ export default async function ChildrenPage() {
       weekObs: weekObs.length,
     });
   }
+
+  console.log("countMap", countMap);
 
   return (
     <>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
 
 import { createGroupObservation } from "@/app/actions/observations";
@@ -35,6 +35,10 @@ export function StudentsAndGroupObservation({
   const selectedNames = students
     .filter((s) => selectedIds.has(s.id))
     .map((s) => s.name);
+
+  useEffect(() => {
+    console.log("countMap", countMap);
+  }, [countMap]);
 
   if (!showGroupObservation) {
     return (
