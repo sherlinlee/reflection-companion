@@ -1,9 +1,9 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { Loader2 } from "lucide-react";
 
-import { signIn, signUp } from "@/app/actions/auth";
+import { requestPasswordReset, signIn, signUp } from "@/app/actions/auth";
 import { BrandMark } from "@/components/brand-mark";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +19,8 @@ import {
 } from "@/lib/ui-classes";
 
 export function LoginForm() {
+  const [showForgot, setShowForgot] = useState(false);
+
   const [signInState, signInAction, signInPending] = useActionState(
     async (_prev: { error?: string } | null, formData: FormData) => {
       return (await signIn(formData)) ?? null;
@@ -33,7 +35,17 @@ export function LoginForm() {
     null,
   );
 
-  const error = signInState?.error ?? signUpState?.error;
+  const [resetState, resetAction, resetPending] = useActionState(
+    async (
+      _prev: { error?: string; ok?: true; message?: string } | null,
+      formData: FormData,
+    ) => {
+      return (await requestPasswordReset(formData)) ?? null;
+    },
+    null,
+  );
+
+  const error = signInState?.error ?? signUpState?.error ?? resetState?.error;
 
   return (
     <div className="flex min-h-full flex-col items-center justify-center px-4 py-12 sm:py-16">
@@ -119,7 +131,50 @@ export function LoginForm() {
               "Sign in"
             )}
           </Button>
+          <button
+            type="button"
+            onClick={() => setShowForgot((v) => !v)}
+            className="text-center text-[12px] font-medium text-[#1A7A6E] transition-colors hover:text-[#2A9D8F]"
+          >
+            {showForgot ? "Back to sign in" : "Forgot password?"}
+          </button>
         </form>
+
+        {showForgot && (
+          <form action={resetAction} className={authFormClass}>
+            <h2 className={authTitleClass}>Reset password</h2>
+            <p className="text-center text-[13px] leading-[1.6] text-[#8a9490]">
+              Enter your account email and we&apos;ll send you a reset link.
+            </p>
+            {resetState?.ok && resetState.message && (
+              <p className="rounded-lg border border-[rgba(26,122,110,0.2)] bg-[#EAF5F3] px-4 py-3 text-center text-sm text-[#1A7A6E]">
+                {resetState.message}
+              </p>
+            )}
+            <input
+              name="email"
+              type="email"
+              required
+              placeholder="Email"
+              className={authFieldClass}
+            />
+            <Button
+              type="submit"
+              variant="outline"
+              className="w-full border-[#1A7A6E]/30 text-[#1A7A6E] hover:bg-[#EAF5F3]"
+              disabled={resetPending}
+            >
+              {resetPending ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" />
+                  Sending…
+                </>
+              ) : (
+                "Send reset link"
+              )}
+            </Button>
+          </form>
+        )}
 
         <form action={signUpAction} className={authFormClass}>
           <h2 className={authTitleClass}>Create account</h2>
