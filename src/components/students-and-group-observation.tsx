@@ -51,22 +51,18 @@ export function StudentsAndGroupObservation({
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:items-start">
-      {/* Mobile: student list first; desktop: right column */}
-      <div className="order-1 min-w-0 sm:order-2">
-        <StudentList
-          students={students}
-          countMap={countMap}
-          lastObsMap={lastObsMap}
-          groupSelect={{
-            selectedIds,
-            onToggle: toggleStudent,
-          }}
-        />
-      </div>
+    <div className="flex flex-col gap-4">
+      <StudentList
+        students={students}
+        countMap={countMap}
+        lastObsMap={lastObsMap}
+        groupSelect={{
+          selectedIds,
+          onToggle: toggleStudent,
+        }}
+      />
 
-      {/* Mobile: below list; desktop: left column */}
-      <section className="spark-panel-highlight order-2 min-w-0 sm:order-1">
+      <section className="spark-panel-highlight">
         <h2 className={`${sectionLabelClass} mb-3`}>Group observation</h2>
         <p className="mb-3 text-[12px] leading-[1.6] text-[#8a9490]">
           Check students in the list, write one observation — each gets their
