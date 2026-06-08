@@ -21,7 +21,7 @@ After pulling media features, also run migrations `003_observation_media.sql` an
 
 - **Caps:** 10 MB photo, 50 MB voice memo; **one photo + one voice memo** per observation.
 - **Storage:** files live in the private `observation-media` bucket; Postgres stores **paths only** (`image_url`, `audio_url`), not file bytes.
-- **Images:** compressed to WebP (max 2048px edge) on the server when possible before upload.
+- **Upload path:** files go **directly from the browser to Supabase Storage** (not through the Next.js server action), avoiding request body size limits on hosting.
 - **Pilot storage tracking:** `educator_storage_events` logs upload/delete byte counts per educator. In SQL Editor:
 
 ```sql
