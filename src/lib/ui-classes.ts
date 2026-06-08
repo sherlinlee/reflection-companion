@@ -48,4 +48,14 @@ export const sparkToolCardClass = "spark-tool-card";
 export const claimBannerClass = "spark-claim-banner";
 
 export const navLinkClass =
-  "inline-flex items-center gap-1.5 text-sm font-medium text-[#7A9490] transition-all duration-200 hover:gap-2.5 hover:text-[#1A7A6E]";
+  "inline-flex items-center gap-1.5 text-sm font-medium text-[#7A9490] transition-all duration-200 hover:gap-2.5 hover:text-[#1A7A6E] active:scale-[0.98] active:text-[#1A7A6E]";
+
+/** Bordered pill actions (export, add observation, etc.) */
+export const pillButtonClass =
+  "inline-flex items-center gap-1.5 rounded-full border border-[rgba(154,124,46,0.2)] bg-white px-3 py-1.5 text-[12px] font-medium text-[#9a7c2e] transition-all duration-150 hover:bg-[#faf4e6] active:scale-[0.97] active:bg-[#f5edd8] disabled:pointer-events-none disabled:opacity-60";
+
+export const exportButtonClass =
+  "inline-flex items-center gap-1.5 rounded-lg border border-[rgba(154,124,46,0.2)] bg-white px-3 py-2 text-[12px] font-medium text-[#9a7c2e] transition-all duration-150 hover:bg-[#faf4e6] active:scale-[0.97] active:bg-[#f5edd8] disabled:pointer-events-none disabled:opacity-60";
+
+export const iconToolbarButtonClass =
+  "flex h-8 w-8 items-center justify-center rounded-lg border border-[rgba(154,124,46,0.2)] bg-white text-[#9a7c2e] transition-all duration-150 hover:bg-[#faf4e6] active:scale-[0.95] active:bg-[#f5edd8] disabled:pointer-events-none disabled:opacity-60";

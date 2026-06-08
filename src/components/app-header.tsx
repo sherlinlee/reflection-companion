@@ -1,6 +1,5 @@
-import { signOut } from "@/app/actions/auth";
 import { BrandMark } from "@/components/brand-mark";
-import { Button } from "@/components/ui/button";
+import { SignOutButton } from "@/components/sign-out-button";
 
 export function AppHeader({
   title,
@@ -27,16 +26,7 @@ export function AppHeader({
             </div>
           )}
         </div>
-        <form action={signOut}>
-          <Button
-            type="submit"
-            variant="ghost"
-            size="sm"
-            className="text-[#8a9490] hover:bg-[#faf4e6] hover:text-[#9a7c2e]"
-          >
-            Sign out
-          </Button>
-        </form>
+        <SignOutButton />
       </div>
     </header>
   );

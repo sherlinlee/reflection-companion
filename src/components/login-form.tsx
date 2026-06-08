@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { Loader2 } from "lucide-react";
 
 import { signIn, signUp } from "@/app/actions/auth";
 import { BrandMark } from "@/components/brand-mark";
@@ -109,7 +110,14 @@ export function LoginForm() {
             className={authCtaClass}
             disabled={signInPending}
           >
-            {signInPending ? "Signing in…" : "Sign in"}
+            {signInPending ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                Signing in…
+              </>
+            ) : (
+              "Sign in"
+            )}
           </Button>
         </form>
 
@@ -136,7 +144,14 @@ export function LoginForm() {
             className="w-full border-[#1A7A6E]/30 text-[#1A7A6E] hover:bg-[#EAF5F3]"
             disabled={signUpPending}
           >
-            {signUpPending ? "Creating…" : "Create account"}
+            {signUpPending ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                Creating…
+              </>
+            ) : (
+              "Create account"
+            )}
           </Button>
         </form>
 

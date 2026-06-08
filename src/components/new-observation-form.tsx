@@ -11,7 +11,11 @@ import {
   cleanupClientUploadedPaths,
   uploadObservationMediaFromBrowser,
 } from "@/lib/observation-media-client";
-import { MEDIA_UPLOAD_ERROR_MESSAGES } from "@/lib/observation-media";
+import {
+  MEDIA_UPLOAD_ERROR_MESSAGES,
+  validateAudioFile,
+} from "@/lib/observation-media";
+import { appendTranscript, transcribeAudioFile } from "@/lib/transcribe-audio";
 import type { Child } from "@/lib/types";
 import { cardClass, fieldClass, sectionLabelClass } from "@/lib/ui-classes";
 
@@ -28,8 +32,40 @@ export function NewObservationForm({ childId, others }: Props) {
   const formRef = useRef<HTMLFormElement>(null);
   const [phase, setPhase] = useState<SubmitPhase>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [observationText, setObservationText] = useState("");
+  const [transcribing, setTranscribing] = useState(false);
+  const [transcribeNote, setTranscribeNote] = useState<string | null>(null);
 
-  const isBusy = phase !== "idle";
+  const isBusy = phase !== "idle" || transcribing;
+
+  async function handleAudioChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    setTranscribeNote(null);
+
+    if (!file || file.size === 0) return;
+
+    const validationError = validateAudioFile(file);
+    if (validationError) {
+      setErrorMessage(MEDIA_UPLOAD_ERROR_MESSAGES[validationError] ?? validationError);
+      e.target.value = "";
+      return;
+    }
+
+    setErrorMessage(null);
+    setTranscribing(true);
+
+    const result = await transcribeAudioFile(file);
+
+    setTranscribing(false);
+
+    if ("error" in result) {
+      setTranscribeNote(result.error);
+      return;
+    }
+
+    setObservationText((current) => appendTranscript(current, result.text));
+    setTranscribeNote("Voice memo transcribed into the observation box below.");
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -37,7 +73,7 @@ export function NewObservationForm({ childId, others }: Props) {
 
     const form = e.currentTarget;
     const formData = new FormData(form);
-    const observation_text = String(formData.get("observation_text") ?? "").trim();
+    const observation_text = observationText.trim();
 
     if (!observation_text) {
       setErrorMessage("Observation text is required.");
@@ -160,9 +196,17 @@ export function NewObservationForm({ childId, others }: Props) {
         rows={12}
         maxLength={20000}
         disabled={isBusy}
+        value={observationText}
+        onChange={(e) => setObservationText(e.target.value)}
         placeholder={`Write what you saw and heard — in the child's own words where possible.\n\nExample:\n\nAva crouched by the garden bed and picked up a worm. She held it carefully and said: "The worm is building a road underground. He's an engineer like my dad."\n\nShe spent 10 minutes watching it move before asking if worms sleep.`}
         className={`${fieldClass} min-h-[260px] resize-y`}
       />
+      {transcribing && (
+        <p className="flex items-center gap-2 text-[12px] text-[#9a7c2e]">
+          <Loader2 className="size-3.5 animate-spin" />
+          Transcribing voice memo…
+        </p>
+      )}
 
       <p className="text-[12px] text-[#8a9490]">
         Richer observations lead to richer reflections.
@@ -171,10 +215,14 @@ export function NewObservationForm({ childId, others }: Props) {
       <div className="border-t border-[rgba(154,124,46,0.1)] pt-4">
         <p className={`${sectionLabelClass} mb-1`}>Attach media</p>
         <p className="mb-3 text-[12px] leading-[1.5] text-[#8a9490]">
-          Optional — one photo and one voice memo per observation. Files upload
-          directly to Supabase Storage from your browser; only paths are saved
-          on the observation.
+          Optional — one photo and one voice memo per observation. Voice memos
+          are transcribed into the observation box automatically (up to 25 MB).
+          Files upload directly to Supabase Storage; only paths are saved on the
+          observation.
         </p>
+        {transcribeNote && (
+          <p className="mb-3 text-[12px] text-[#8a9490]">{transcribeNote}</p>
+        )}
         {errorMessage && (
           <p
             role="alert"
@@ -209,6 +257,7 @@ export function NewObservationForm({ childId, others }: Props) {
               name="audio"
               accept="audio/mp4,audio/mpeg,audio/webm,audio/x-m4a,audio/m4a"
               disabled={isBusy}
+              onChange={handleAudioChange}
               className="block w-full rounded-lg border border-[rgba(154,124,46,0.2)] bg-white px-3 py-2 text-[12px] text-[#8a9490] file:mr-3 file:rounded-md file:border-0 file:bg-[#faf4e6] file:px-2.5 file:py-1 file:text-[11px] file:font-medium file:text-[#9a7c2e] hover:border-[rgba(154,124,46,0.35)] disabled:opacity-60"
             />
             <span className="text-[11px] text-[#8a9490]">

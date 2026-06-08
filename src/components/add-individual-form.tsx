@@ -1,10 +1,10 @@
 "use client";
 
 import { useActionState } from "react";
-import { Loader2, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 
 import { createChild, type CreateChildState } from "@/app/actions/children";
-import { Button } from "@/components/ui/button";
+import { FormSubmitButton } from "@/components/form-submit-button";
 import { cardClass, fieldClass, sectionLabelClass } from "@/lib/ui-classes";
 
 const initialState: CreateChildState = { error: null };
@@ -51,25 +51,15 @@ export function AddIndividualForm() {
             {state.error}
           </p>
         )}
-        <Button
-          type="submit"
+        <FormSubmitButton
           variant="cta"
           className="w-full sm:w-auto"
           size="lg"
-          disabled={isPending}
+          pendingLabel="Adding…"
         >
-          {isPending ? (
-            <>
-              <Loader2 className="size-4 animate-spin" />
-              Adding…
-            </>
-          ) : (
-            <>
-              <Plus />
-              Add individual
-            </>
-          )}
-        </Button>
+          <Plus />
+          Add individual
+        </FormSubmitButton>
       </form>
     </section>
   );

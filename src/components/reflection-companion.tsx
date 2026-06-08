@@ -7,7 +7,7 @@ import { useState } from "react";
 import { ReflectionSection } from "@/components/reflection-sections";
 import { Button } from "@/components/ui/button";
 import type { Reflection } from "@/lib/types";
-import { pullQuoteClass, staggerSectionsClass } from "@/lib/ui-classes";
+import { exportButtonClass, pullQuoteClass, staggerSectionsClass } from "@/lib/ui-classes";
 
 export function ReflectionCompanion({
   observationId,
@@ -164,7 +164,7 @@ export function ReflectionCompanion({
             <button
               type="button"
               onClick={() => void handleCopy()}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[rgba(154,124,46,0.2)] bg-white px-3 py-2 text-[12px] font-medium text-[#9a7c2e] transition-colors hover:bg-[#faf4e6] print:hidden"
+              className={`${exportButtonClass} print:hidden`}
             >
               {copied ? (
                 <>
@@ -181,7 +181,7 @@ export function ReflectionCompanion({
             <button
               type="button"
               onClick={handlePrint}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[rgba(154,124,46,0.2)] bg-white px-3 py-2 text-[12px] font-medium text-[#9a7c2e] transition-colors hover:bg-[#faf4e6] print:hidden"
+              className={`${exportButtonClass} print:hidden`}
             >
               <Download className="size-3.5" />
               Download PDF
@@ -193,7 +193,14 @@ export function ReflectionCompanion({
               onClick={() => void generate()}
               className="print:hidden"
             >
-              {loading ? "Regenerating…" : "Regenerate reflection"}
+              {loading ? (
+                <>
+                  <Loader2 className="animate-spin" />
+                  Regenerating…
+                </>
+              ) : (
+                "Regenerate reflection"
+              )}
             </Button>
           </div>
 

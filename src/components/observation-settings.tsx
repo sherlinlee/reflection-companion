@@ -1,13 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import { Plus } from "lucide-react";
 
 import {
   deleteObservation,
   updateObservation,
 } from "@/app/actions/observations";
+import { ActionLink } from "@/components/action-link";
+import { FormSubmitButton } from "@/components/form-submit-button";
 import { Button } from "@/components/ui/button";
-import { cardClass, fieldClass } from "@/lib/ui-classes";
+import { cardClass, fieldClass, pillButtonClass } from "@/lib/ui-classes";
 
 type Props = {
   observationId: string;
@@ -70,9 +73,13 @@ export function ObservationSettings({
             Saving clears the current reflection — you can generate a new one
             after editing.
           </p>
-          <Button type="submit" variant="cta" className="w-full sm:w-auto">
+          <FormSubmitButton
+            variant="cta"
+            pendingLabel="Saving…"
+            className="w-full sm:w-auto"
+          >
             Save observation
-          </Button>
+          </FormSubmitButton>
         </form>
       ) : (
         <>
@@ -119,6 +126,16 @@ export function ObservationSettings({
               timeStyle: "short",
             })}
           </time>
+
+          <div className="mt-4 border-t border-[rgba(154,124,46,0.1)] pt-4">
+            <ActionLink
+              href={`/children/${childId}/observations/new`}
+              className={pillButtonClass}
+            >
+              <Plus className="size-3.5" />
+              Add another observation
+            </ActionLink>
+          </div>
         </>
       )}
 
@@ -132,9 +149,13 @@ export function ObservationSettings({
         <p className="mb-3 text-xs text-muted-foreground">
           Removes this observation from {childName}&apos;s documentation.
         </p>
-        <Button type="submit" variant="destructive" size="sm">
+        <FormSubmitButton
+          variant="destructive"
+          size="sm"
+          pendingLabel="Deleting…"
+        >
           Delete observation
-        </Button>
+        </FormSubmitButton>
       </form>
     </section>
   );

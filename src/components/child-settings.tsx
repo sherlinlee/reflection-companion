@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { deleteChild, updateChild } from "@/app/actions/children";
+import { FormSubmitButton } from "@/components/form-submit-button";
 import { Button } from "@/components/ui/button";
 import type { Child } from "@/lib/types";
 import { cardClass, fieldClass } from "@/lib/ui-classes";
@@ -73,9 +74,13 @@ export function ChildSettings({ child }: { child: Child }) {
               />
             </div>
           </div>
-          <Button type="submit" variant="cta" className="w-full sm:w-auto">
+          <FormSubmitButton
+            variant="cta"
+            pendingLabel="Saving…"
+            className="w-full sm:w-auto"
+          >
             Save changes
-          </Button>
+          </FormSubmitButton>
         </form>
       ) : (
         <dl className="grid gap-2 text-sm">
@@ -108,9 +113,13 @@ export function ChildSettings({ child }: { child: Child }) {
           Deleting removes this individual and all observations and reflections
           linked to them.
         </p>
-        <Button type="submit" variant="destructive" size="sm">
+        <FormSubmitButton
+          variant="destructive"
+          size="sm"
+          pendingLabel="Deleting…"
+        >
           Delete individual
-        </Button>
+        </FormSubmitButton>
       </form>
     </section>
   );

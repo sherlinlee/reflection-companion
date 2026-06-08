@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
-import { getSignedUrl } from "@/lib/get-signed-url";
+import { ActionLink } from "@/components/action-link";
 import { AppHeader } from "@/components/app-header";
+import { getSignedUrl } from "@/lib/get-signed-url";
 import { ObservationSettings } from "@/components/observation-settings";
 import { PageShell } from "@/components/page-shell";
 import { ReflectionCompanion } from "@/components/reflection-companion";
@@ -85,13 +85,13 @@ export default async function ObservationPage({
         subtitle={`Revisiting documentation for ${child.name}`}
       />
       <PageShell>
-        <Link
+        <ActionLink
           href={`/children/${row.child_id}`}
           className={`${navLinkClass} print:hidden`}
         >
           <ArrowLeft className="size-4" />
           Back to {child.name}
-        </Link>
+        </ActionLink>
 
         <ObservationSettings
           observationId={observationId}

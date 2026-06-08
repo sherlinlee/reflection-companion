@@ -1,18 +1,16 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, FileText, Plus, Settings } from "lucide-react";
+import { ArrowLeft, FileText, Settings } from "lucide-react";
 
+import { AddObservationButton } from "@/components/add-observation-button";
+import { ActionLink } from "@/components/action-link";
 import { AppHeader } from "@/components/app-header";
 import { ChildReflectionCompanion } from "@/components/child-reflection-companion";
 import { ChildSettings } from "@/components/child-settings";
+import { ObservationList } from "@/components/observation-list";
 import { PageShell } from "@/components/page-shell";
-import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 import type { Child, ChildReflection, Observation } from "@/lib/types";
 import {
-  linkArrowClass,
-  linkRowClass,
-  listPanelClass,
   navLinkClass,
   sectionLabelClass,
 } from "@/lib/ui-classes";
@@ -93,21 +91,13 @@ export default async function ChildPage({
               </p>
             )}
           </div>
-          <Button
-            variant="cta"
-            size="lg"
-            nativeButton={false}
-            render={<Link href={`/children/${childId}/observations/new`} />}
-          >
-            <Plus />
-            Add observation
-          </Button>
+          <AddObservationButton childId={childId} />
         </div>
 
-        <Link href="/children" className={navLinkClass}>
+        <ActionLink href="/children" className={navLinkClass}>
           <ArrowLeft className="size-3.5" />
           All children
-        </Link>
+        </ActionLink>
 
         <div className="h-px bg-[rgba(154,124,46,0.12)]" />
 
@@ -122,34 +112,7 @@ export default async function ChildPage({
               No observations yet. Add one to get started.
             </p>
           ) : (
-            <ul className={listPanelClass}>
-              {obsList.map((obs) => (
-                <li
-                  key={obs.id}
-                  className="border-b border-[rgba(154,124,46,0.08)] last:border-0"
-                >
-                  <Link href={`/observations/${obs.id}`} className={linkRowClass}>
-                    <span className="min-w-0 flex-1">
-                      <p className="line-clamp-2 text-[13.5px] leading-relaxed text-[#0f1a18]">
-                        {obs.observation_text}
-                      </p>
-                      <time
-                        dateTime={obs.created_at}
-                        className="mt-1 block text-[11px] text-[#8a9490]"
-                      >
-                        {new Date(obs.created_at).toLocaleDateString(
-                          undefined,
-                          { dateStyle: "medium" },
-                        )}
-                      </time>
-                    </span>
-                    <span className={linkArrowClass} aria-hidden>
-                      →
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <ObservationList observations={obsList} />
           )}
           <p className="text-[11px] text-[#8a9490]">
             Each entry has its own reflection. Use the section below to reflect

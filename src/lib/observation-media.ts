@@ -8,6 +8,8 @@ export const MAX_AUDIO_PER_OBSERVATION = 1;
 
 export const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 export const MAX_AUDIO_BYTES = 50 * 1024 * 1024;
+/** OpenAI Whisper API limit (upload cap may be higher). */
+export const WHISPER_MAX_BYTES = 25 * 1024 * 1024;
 
 export const ALLOWED_IMAGE_TYPES = new Set([
   "image/jpeg",

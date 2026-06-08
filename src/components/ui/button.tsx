@@ -13,13 +13,13 @@ const buttonVariants = cva(
         cta:
           "spark-cta-shimmer min-h-11 rounded-full bg-[#E8A045] px-6 font-heading text-base font-bold italic tracking-[0.01em] text-[#1A1A1A] shadow-[0_6px_24px_rgba(232,160,69,0.45),0_2px_8px_rgba(0,0,0,0.2)] hover:bg-[#F0B05A] hover:scale-[1.03] active:scale-[0.98] hover:[&_svg]:rotate-12",
         outline:
-          "border-border bg-background shadow-sm hover:border-[#C8A85A]/40 hover:bg-[#FAF4E6] hover:text-[#9A7C2E] hover:shadow-md aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
+          "border-border bg-background shadow-sm hover:border-[#C8A85A]/40 hover:bg-[#FAF4E6] hover:text-[#9A7C2E] hover:shadow-md active:scale-[0.98] active:bg-[#FAF4E6]/90 aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
         secondary:
           "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 hover:shadow-md active:scale-[0.98]",
         ghost:
-          "hover:bg-accent hover:text-accent-foreground aria-expanded:bg-accent aria-expanded:text-accent-foreground",
+          "hover:bg-accent hover:text-accent-foreground active:scale-[0.97] active:bg-accent/80 aria-expanded:bg-accent aria-expanded:text-accent-foreground",
         destructive:
-          "bg-destructive/10 text-destructive border-destructive/30 hover:bg-destructive/15 hover:border-destructive/50 shadow-sm",
+          "bg-destructive/10 text-destructive border-destructive/30 hover:bg-destructive/15 hover:border-destructive/50 active:scale-[0.97] active:bg-destructive/20 shadow-sm",
         link:
           "text-primary underline-offset-4 hover:underline",
       },

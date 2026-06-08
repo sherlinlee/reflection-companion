@@ -8,6 +8,7 @@ import { ReflectionSection } from "@/components/reflection-sections";
 import { Button } from "@/components/ui/button";
 import type { ChildReflection } from "@/lib/types";
 import {
+  iconToolbarButtonClass,
   panelHighlightClass,
   sectionLabelClass,
   staggerSectionsClass,
@@ -211,7 +212,7 @@ export function ChildReflectionCompanion({
                 type="button"
                 onClick={() => void handleCopy()}
                 title="Copy to clipboard"
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-[rgba(154,124,46,0.2)] bg-white text-[#9a7c2e] transition-colors hover:bg-[#faf4e6]"
+                className={iconToolbarButtonClass}
               >
                 {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
               </button>
@@ -220,7 +221,7 @@ export function ChildReflectionCompanion({
                 type="button"
                 onClick={handlePrint}
                 title="Download PDF"
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-[rgba(154,124,46,0.2)] bg-white text-[#9a7c2e] transition-colors hover:bg-[#faf4e6]"
+                className={iconToolbarButtonClass}
               >
                 <Download className="size-3.5" />
               </button>
@@ -230,11 +231,16 @@ export function ChildReflectionCompanion({
               type="button"
               disabled={loading}
               onClick={() => void generate()}
-              className="text-[11px] text-[#c8a85a] underline underline-offset-2 transition-colors hover:text-[#9a7c2e] disabled:opacity-40"
+              className="inline-flex items-center gap-1.5 text-[11px] text-[#c8a85a] underline underline-offset-2 transition-all active:scale-[0.98] hover:text-[#9a7c2e] disabled:opacity-40"
             >
-              {loading
-                ? "Regenerating…"
-                : `Regenerate observations for ${childName}`}
+              {loading ? (
+                <>
+                  <Loader2 className="size-3 animate-spin" />
+                  Regenerating…
+                </>
+              ) : (
+                `Regenerate observations for ${childName}`
+              )}
             </button>
           </div>
         </div>
