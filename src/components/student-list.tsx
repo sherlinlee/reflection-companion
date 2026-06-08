@@ -15,11 +15,39 @@ import {
 } from "@/lib/ui-classes";
 import { cn } from "@/lib/utils";
 
+const MAX_DOTS = 8;
+const STALE_DAYS = 14;
+
 type Props = {
   students: Child[];
+  countMap: Record<string, number>;
+  lastObsMap: Record<string, string>;
 };
 
-export function StudentList({ students }: Props) {
+function daysSince(dateStr: string): number {
+  const last = new Date(dateStr);
+  const now = new Date();
+  const diff = now.getTime() - last.getTime();
+  return Math.floor(diff / (1000 * 60 * 60 * 24));
+}
+
+function getEquityState(
+  count: number,
+  lastObs: string | undefined,
+): { type: "dots"; filled: number } | { type: "nudge"; message: string } {
+  if (count === 0) {
+    return { type: "nudge", message: "Not yet documented" };
+  }
+
+  if (lastObs && daysSince(lastObs) > STALE_DAYS) {
+    return { type: "nudge", message: "No entry in 14 days" };
+  }
+
+  const filled = Math.min(count, MAX_DOTS);
+  return { type: "dots", filled };
+}
+
+export function StudentList({ students, countMap, lastObsMap }: Props) {
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
   return (
@@ -36,6 +64,10 @@ export function StudentList({ students }: Props) {
         <ul className={listPanelClass}>
           {students.map((child) => {
             const isLoading = loadingId === child.id;
+            const count = countMap[child.id] ?? 0;
+            const lastObs = lastObsMap[child.id];
+            const equity = getEquityState(count, lastObs);
+            const hasNudge = equity.type === "nudge";
 
             return (
               <li
@@ -50,6 +82,7 @@ export function StudentList({ students }: Props) {
                     linkRowClass,
                     "transition-opacity duration-150",
                     isLoading && "pointer-events-none opacity-60",
+                    hasNudge && "bg-[rgba(252,235,235,0.35)]",
                   )}
                 >
                   <span className={avatarClass}>
@@ -67,6 +100,34 @@ export function StudentList({ students }: Props) {
                           : "View observations"}
                     </span>
                   </span>
+
+                  <span className="flex shrink-0 flex-col items-end gap-0.5">
+                    {equity.type === "nudge" ? (
+                      <span className="rounded bg-[#fcebeb] px-1.5 py-0.5 text-[10px] font-medium text-[#a32d2d]">
+                        {equity.message}
+                      </span>
+                    ) : (
+                      <>
+                        <span className="flex gap-[3px]">
+                          {Array.from({ length: MAX_DOTS }, (_, i) => (
+                            <span
+                              key={i}
+                              className={cn(
+                                "size-1.5 rounded-full",
+                                i < equity.filled
+                                  ? "bg-[#9a7c2e]"
+                                  : "bg-[rgba(154,124,46,0.15)]",
+                              )}
+                            />
+                          ))}
+                        </span>
+                        <span className="text-[10px] text-[#8a9490]">
+                          {count} {count === 1 ? "observation" : "observations"}
+                        </span>
+                      </>
+                    )}
+                  </span>
+
                   <span
                     className={cn(
                       linkArrowClass,
