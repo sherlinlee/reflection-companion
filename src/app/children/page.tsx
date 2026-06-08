@@ -2,10 +2,9 @@ import { redirect } from "next/navigation";
 
 import { AddIndividualForm } from "@/components/add-individual-form";
 import { AppHeader } from "@/components/app-header";
-import { GroupObservationForm } from "@/components/group-observation-form";
 import { MomentumStrip } from "@/components/momentum-strip";
 import { PageShell } from "@/components/page-shell";
-import { StudentList } from "@/components/student-list";
+import { StudentsAndGroupObservation } from "@/components/students-and-group-observation";
 import { hasSupabaseEnv } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 import type { Child } from "@/lib/types";
@@ -20,73 +19,31 @@ export default async function ChildrenPage() {
     .order("name");
 
   const list = (children ?? []) as Child[];
-  const childIds = list.map((c) => c.id);
 
-  let countMap: Record<string, number> = {};
-  let lastObsMap: Record<string, string> = {};
-  let weekObs: { created_at: string }[] = [];
-
-  if (childIds.length > 0) {
-    const { data: obsCounts, error: obsCountsError } = await supabase
-      .from("observations")
-      .select("child_id")
-      .in("child_id", childIds);
-
-    if (obsCountsError) {
-      console.error(
-        "[children/page] observation counts failed:",
-        obsCountsError.message,
-      );
-    }
-
-    countMap = childIds.reduce(
-      (acc, id) => {
-        acc[id] = 0;
-        return acc;
-      },
-      {} as Record<string, number>,
-    );
-
-    for (const row of obsCounts ?? []) {
-      countMap[row.child_id] = (countMap[row.child_id] ?? 0) + 1;
-    }
-
-    const lastObsResult = await supabase
+  const countMap: Record<string, number> = {};
+  const lastObsMap: Record<string, string> = {};
+  if (list.length > 0) {
+    const { data: allObs } = await supabase
       .from("observations")
       .select("child_id, created_at")
-      .in("child_id", childIds)
+      .in("child_id", list.map((c) => c.id))
       .order("created_at", { ascending: false });
-
-    if (lastObsResult.error) {
-      console.error(
-        "[children/page] last observations failed:",
-        lastObsResult.error.message,
-      );
+    for (const obs of allObs ?? []) {
+      countMap[obs.child_id] = (countMap[obs.child_id] ?? 0) + 1;
+      if (!lastObsMap[obs.child_id]) lastObsMap[obs.child_id] = obs.created_at;
     }
+  }
 
-    lastObsMap = (lastObsResult.data ?? []).reduce(
-      (acc, o) => {
-        if (!acc[o.child_id]) acc[o.child_id] = o.created_at;
-        return acc;
-      },
-      {} as Record<string, string>,
-    );
-
+  let weekObs: { created_at: string }[] = [];
+  if (list.length > 0) {
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 6);
 
-    const { data: weekData, error: weekObsError } = await supabase
+    const { data: weekData } = await supabase
       .from("observations")
       .select("created_at")
-      .in("child_id", childIds)
+      .in("child_id", list.map((c) => c.id))
       .gte("created_at", weekAgo.toISOString());
-
-    if (weekObsError) {
-      console.error(
-        "[children/page] week observations failed:",
-        weekObsError.message,
-      );
-    }
 
     weekObs = weekData ?? [];
   }
@@ -100,11 +57,9 @@ export default async function ChildrenPage() {
       <PageShell>
         <AddIndividualForm />
 
-        {list.length >= 2 && <GroupObservationForm students={list} />}
-
         {list.length > 0 && <MomentumStrip observations={weekObs} />}
 
-        <StudentList
+        <StudentsAndGroupObservation
           students={list}
           countMap={countMap}
           lastObsMap={lastObsMap}

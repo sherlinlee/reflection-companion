@@ -1,97 +1,39 @@
 "use client";
 
-import { useState } from "react";
 import { Plus } from "lucide-react";
 
 import { createGroupObservation } from "@/app/actions/observations";
 import { FormSubmitButton } from "@/components/form-submit-button";
 import type { Child } from "@/lib/types";
-import { avatarClass, fieldClass, sectionLabelClass } from "@/lib/ui-classes";
-import { cn } from "@/lib/utils";
+import { fieldClass, sectionLabelClass } from "@/lib/ui-classes";
 
 type Props = {
   students: Child[];
+  selectedIds: string[];
 };
 
-export function GroupObservationForm({ students }: Props) {
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-
-  function toggleStudent(id: string) {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }
+export function GroupObservationForm({ students, selectedIds }: Props) {
+  const selectedNames = students
+    .filter((s) => selectedIds.includes(s.id))
+    .map((s) => s.name);
 
   return (
     <section className="spark-panel-highlight">
       <h2 className={`${sectionLabelClass} mb-3`}>Group observation</h2>
       <p className="mb-4 text-[12px] leading-[1.6] text-[#8a9490]">
-        Select two or more students, write one observation — each gets their own
-        saved entry and reflection.
+        Check students in the list below, write one observation — each gets their
+        own saved entry and reflection.
       </p>
       <form action={createGroupObservation} className="flex flex-col gap-4">
-        <div className="grid gap-2 sm:grid-cols-2">
-          {students.map((child) => {
-            const selected = selectedIds.has(child.id);
+        {selectedIds.map((id) => (
+          <input key={id} type="hidden" name="child_ids" value={id} />
+        ))}
 
-            return (
-              <label
-                key={child.id}
-                className={cn(
-                  "flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2.5 transition-all duration-150",
-                  selected
-                    ? "border-[#9a7c2e] bg-[#faf4e6] shadow-[0_0_0_1px_rgba(154,124,46,0.25)]"
-                    : "border-[rgba(154,124,46,0.2)] bg-white hover:border-[rgba(154,124,46,0.35)] hover:bg-[#faf4e6]/40",
-                )}
-              >
-                <input
-                  type="checkbox"
-                  name="child_ids"
-                  value={child.id}
-                  checked={selected}
-                  onChange={() => toggleStudent(child.id)}
-                  className="sr-only"
-                />
-                <span
-                  className={cn(
-                    avatarClass,
-                    "relative transition-all duration-150",
-                    selected &&
-                      "bg-white ring-2 ring-[#9a7c2e] ring-offset-2 text-[#9a7c2e]",
-                  )}
-                >
-                  {child.name.charAt(0).toUpperCase()}
-                  {selected && (
-                    <span
-                      aria-hidden
-                      className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#9a7c2e] text-[9px] font-bold text-white"
-                    >
-                      ✓
-                    </span>
-                  )}
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span
-                    className={cn(
-                      "block text-[13px] font-medium",
-                      selected ? "text-[#9a7c2e]" : "text-[#3d4f4c]",
-                    )}
-                  >
-                    {child.name}
-                  </span>
-                  {child.class_name && (
-                    <span className="block text-[11px] text-[#8a9490]">
-                      {child.class_name}
-                    </span>
-                  )}
-                </span>
-              </label>
-            );
-          })}
-        </div>
+        {selectedNames.length > 0 && (
+          <p className="text-[11px] font-medium text-[#9a7c2e]">
+            {selectedNames.map((name) => `✓ ${name}`).join(" · ")}
+          </p>
+        )}
 
         <textarea
           name="observation_text"
@@ -110,6 +52,7 @@ export function GroupObservationForm({ students }: Props) {
           size="lg"
           pendingLabel="Saving…"
           className="w-full sm:w-auto"
+          disabled={selectedIds.length < 2}
         >
           <Plus />
           Save group observation
