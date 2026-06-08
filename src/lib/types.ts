@@ -42,3 +42,11 @@ export type ChildReflection = {
   observation_count: number;
   created_at: string;
 };
+
+export type ChildSummary = {
+  id: string;
+  child_id: string;
+  summary_text: string;
+  observation_count: number;
+  created_at: string;
+};

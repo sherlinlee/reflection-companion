@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { AppHeader } from "@/components/app-header";
-import { NewObservationForm } from "@/components/new-observation-form";
+import { ObservationForm } from "@/components/observation-form";
 import { PageShell } from "@/components/page-shell";
 import { createClient } from "@/lib/supabase/server";
 import type { Child } from "@/lib/types";
@@ -38,7 +38,7 @@ export default async function NewObservationPage({
         subtitle={`Documentation for ${c.name}`}
       />
       <PageShell>
-        <NewObservationForm childId={childId} others={others} />
+        <ObservationForm childId={childId} others={others} />
       </PageShell>
     </>
   );

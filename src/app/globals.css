@@ -775,4 +775,90 @@ body::after {
     text-decoration: none !important;
     color: inherit !important;
   }
+
+  /* Portfolio export from student profile */
+  .portfolio-print-only {
+    display: block !important;
+  }
+
+  .portfolio-print-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e8d5a0;
+  }
+
+  .portfolio-print-name {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #0f1a18;
+  }
+
+  .portfolio-print-meta {
+    margin-top: 0.25rem;
+    font-size: 12px;
+    color: #8a9490;
+  }
+
+  .portfolio-print-brand {
+    margin-top: 0.5rem;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #c8a85a;
+  }
+
+  .portfolio-print-entry {
+    break-inside: avoid;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 0.5px solid #e8d5a0;
+  }
+
+  .portfolio-print-date {
+    display: block;
+    font-size: 11px;
+    color: #8a9490;
+    margin-bottom: 0.5rem;
+  }
+
+  .portfolio-print-text {
+    font-size: 13px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    color: #0f1a18;
+  }
+
+  .portfolio-print-image {
+    margin-top: 0.75rem;
+    max-width: 100%;
+    max-height: 280px;
+    object-fit: contain;
+    border-radius: 4px;
+  }
+
+  .portfolio-print-reflection {
+    break-inside: avoid;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e8d5a0;
+  }
+
+  .portfolio-print-section-title {
+    font-family: var(--font-heading);
+    font-size: 14px;
+    font-weight: 600;
+    color: #0f1a18;
+    margin-bottom: 0.25rem;
+  }
+
+  .portfolio-print-reflection-meta {
+    font-size: 11px;
+    color: #8a9490;
+    margin-bottom: 1rem;
+  }
+}
+
+.portfolio-print-only {
+  display: none;
 }

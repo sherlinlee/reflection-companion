@@ -4,12 +4,15 @@ import { ArrowLeft, FileText, Settings } from "lucide-react";
 import { AddObservationButton } from "@/components/add-observation-button";
 import { ActionLink } from "@/components/action-link";
 import { AppHeader } from "@/components/app-header";
+import { ChildPortfolioPrint } from "@/components/child-portfolio-print";
 import { ChildReflectionCompanion } from "@/components/child-reflection-companion";
+import { ChildSemesterSummary } from "@/components/child-semester-summary";
 import { ChildSettings } from "@/components/child-settings";
 import { ObservationList } from "@/components/observation-list";
 import { PageShell } from "@/components/page-shell";
+import { getSignedUrl } from "@/lib/get-signed-url";
 import { createClient } from "@/lib/supabase/server";
-import type { Child, ChildReflection, Observation } from "@/lib/types";
+import type { Child, ChildReflection, ChildSummary, Observation } from "@/lib/types";
 import {
   navLinkClass,
   sectionLabelClass,
@@ -34,11 +37,27 @@ export default async function ChildPage({
 
   const { data: observations } = await supabase
     .from("observations")
-    .select("id, observation_text, created_at")
+    .select("id, observation_text, created_at, image_url")
     .eq("child_id", childId)
     .order("created_at", { ascending: false });
 
   const obsList = (observations ?? []) as Observation[];
+
+  const portfolioObs = await Promise.all(
+    [...obsList]
+      .sort(
+        (a, b) =>
+          new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+      )
+      .map(async (obs) => ({
+        id: obs.id,
+        observation_text: obs.observation_text,
+        created_at: obs.created_at,
+        imageSignedUrl: obs.image_url
+          ? await getSignedUrl(obs.image_url)
+          : null,
+      })),
+  );
 
   const { data: childReflectionRows } = await supabase
     .from("child_reflections")
@@ -65,6 +84,15 @@ export default async function ChildPage({
       }
     : null;
 
+  const { data: summaryRows } = await supabase
+    .from("child_summaries")
+    .select("id, child_id, summary_text, observation_count, created_at")
+    .eq("child_id", childId)
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  const latestSummary = (summaryRows?.[0] as ChildSummary | undefined) ?? null;
+
   return (
     <>
       <AppHeader
@@ -77,7 +105,6 @@ export default async function ChildPage({
       />
 
       <PageShell>
-        {/* ── Hero: name + primary action ── */}
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h1 className="font-heading text-[1.5rem] font-semibold leading-tight tracking-[-0.02em] text-[#0f1a18]">
@@ -91,18 +118,24 @@ export default async function ChildPage({
               </p>
             )}
           </div>
-          <AddObservationButton childId={childId} />
+          <div className="flex flex-wrap items-center gap-2 print:hidden">
+            <ChildPortfolioPrint
+              child={c}
+              observations={portfolioObs}
+              childReflection={childReflection}
+            />
+            <AddObservationButton childId={childId} />
+          </div>
         </div>
 
-        <ActionLink href="/children" className={navLinkClass}>
+        <ActionLink href="/children" className={`${navLinkClass} print:hidden`}>
           <ArrowLeft className="size-3.5" />
           All children
         </ActionLink>
 
-        <div className="h-px bg-[rgba(154,124,46,0.12)]" />
+        <div className="h-px bg-[rgba(154,124,46,0.12)] print:hidden" />
 
-        {/* ── Observations ── */}
-        <section className="flex flex-col gap-3">
+        <section className="flex flex-col gap-3 print:hidden">
           <h2 className={`${sectionLabelClass} flex items-center gap-2`}>
             <FileText className="size-3" />
             Observations
@@ -120,7 +153,6 @@ export default async function ChildPage({
           </p>
         </section>
 
-        {/* ── Reflection companion ── */}
         <ChildReflectionCompanion
           childId={childId}
           childName={c.name}
@@ -130,8 +162,14 @@ export default async function ChildPage({
           initialReflection={childReflection}
         />
 
-        {/* ── Child settings — collapsed at bottom ── */}
-        <details className="group">
+        <ChildSemesterSummary
+          childId={childId}
+          childName={c.name}
+          observationCount={obsList.length}
+          initialSummary={latestSummary}
+        />
+
+        <details className="group print:hidden">
           <summary className="flex cursor-pointer list-none items-center justify-between py-1 text-[11px] text-[#8a9490] transition-colors hover:text-[#9a7c2e] [&::-webkit-details-marker]:hidden">
             <span className="flex items-center gap-1.5">
               <Settings className="size-3" />

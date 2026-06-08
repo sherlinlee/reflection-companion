@@ -18,10 +18,16 @@ import { cn } from "@/lib/utils";
 const MAX_DOTS = 8;
 const STALE_DAYS = 14;
 
+type GroupSelectProps = {
+  selectedIds: Set<string>;
+  onToggle: (id: string) => void;
+};
+
 type Props = {
   students: Child[];
   countMap: Record<string, number>;
   lastObsMap: Record<string, string>;
+  groupSelect?: GroupSelectProps;
 };
 
 function daysSince(dateStr: string): number {
@@ -47,7 +53,12 @@ function getEquityState(
   return { type: "dots", filled };
 }
 
-export function StudentList({ students, countMap, lastObsMap }: Props) {
+export function StudentList({
+  students,
+  countMap,
+  lastObsMap,
+  groupSelect,
+}: Props) {
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
   return (
@@ -68,23 +79,44 @@ export function StudentList({ students, countMap, lastObsMap }: Props) {
             const lastObs = lastObsMap[child.id];
             const equity = getEquityState(count, lastObs);
             const hasNudge = equity.type === "nudge";
+            const isGroupSelected = groupSelect?.selectedIds.has(child.id) ?? false;
 
             return (
               <li
                 key={child.id}
                 className="border-b border-[rgba(154,124,46,0.08)] last:border-0"
               >
-                <Link
-                  href={`/children/${child.id}`}
-                  onClick={() => setLoadingId(child.id)}
-                  aria-busy={isLoading}
+                <div
                   className={cn(
                     linkRowClass,
                     "transition-opacity duration-150",
-                    isLoading && "pointer-events-none opacity-60",
                     hasNudge && "bg-[rgba(252,235,235,0.35)]",
+                    isGroupSelected && "bg-[#faf4e6]/60",
                   )}
                 >
+                  {groupSelect && (
+                    <label
+                      className="flex shrink-0 cursor-pointer items-center py-1"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isGroupSelected}
+                        onChange={() => groupSelect.onToggle(child.id)}
+                        aria-label={`Include ${child.name} in group observation`}
+                        className="size-4 rounded border-[rgba(154,124,46,0.35)] text-[#9a7c2e] focus:ring-[#9a7c2e]/30"
+                      />
+                    </label>
+                  )}
+                  <Link
+                    href={`/children/${child.id}`}
+                    onClick={() => setLoadingId(child.id)}
+                    aria-busy={isLoading}
+                    className={cn(
+                      "flex min-w-0 flex-1 items-center gap-[0.875rem]",
+                      isLoading && "pointer-events-none opacity-60",
+                    )}
+                  >
                   <span className={avatarClass}>
                     {child.name.charAt(0).toUpperCase()}
                   </span>
@@ -140,7 +172,8 @@ export function StudentList({ students, countMap, lastObsMap }: Props) {
                       "→"
                     )}
                   </span>
-                </Link>
+                  </Link>
+                </div>
               </li>
             );
           })}

@@ -117,7 +117,7 @@ export function ChildReflectionCompanion({
   if (observationCount === 0) return null;
 
   return (
-    <section className={panelHighlightClass}>
+    <section className={`${panelHighlightClass} print:hidden`}>
       {/* Header */}
       <div className="space-y-1.5">
         <h2 className={`${sectionLabelClass} flex items-center gap-2`}>

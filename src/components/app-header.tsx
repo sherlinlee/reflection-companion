@@ -1,3 +1,6 @@
+import Link from "next/link";
+import { Settings } from "lucide-react";
+
 import { BrandMark } from "@/components/brand-mark";
 import { SignOutButton } from "@/components/sign-out-button";
 
@@ -26,7 +29,17 @@ export function AppHeader({
             </div>
           )}
         </div>
-        <SignOutButton />
+        <div className="flex items-center gap-2">
+          <Link
+            href="/settings"
+            className="inline-flex items-center gap-1 rounded-full border border-[rgba(154,124,46,0.2)] bg-white px-2.5 py-1.5 text-[11px] font-medium text-[#8a9490] transition-colors hover:border-[#9a7c2e] hover:text-[#9a7c2e]"
+            title="Settings"
+          >
+            <Settings className="size-3.5" />
+            <span className="hidden sm:inline">Settings</span>
+          </Link>
+          <SignOutButton />
+        </div>
       </div>
     </header>
   );

@@ -1,9 +1,10 @@
 "use client";
 
-import { Check, Copy, Download, Loader2, Sparkles } from "lucide-react";
+import { Check, Copy, Download, Loader2, Share2, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { createShareToken } from "@/app/actions/share";
 import { ReflectionSection } from "@/components/reflection-sections";
 import { Button } from "@/components/ui/button";
 import type { Reflection } from "@/lib/types";
@@ -27,6 +28,10 @@ export function ReflectionCompanion({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [shareLoading, setShareLoading] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
+  const [shareError, setShareError] = useState<string | null>(null);
 
   async function generate() {
     setLoading(true);
@@ -96,6 +101,32 @@ export function ReflectionCompanion({
 
   function handlePrint() {
     window.print();
+  }
+
+  async function handleShare() {
+    setShareLoading(true);
+    setShareError(null);
+
+    const result = await createShareToken(observationId);
+
+    setShareLoading(false);
+
+    if ("error" in result) {
+      setShareError(result.error);
+      return;
+    }
+
+    setShareUrl(result.url);
+    await navigator.clipboard.writeText(result.url);
+    setShareCopied(true);
+    setTimeout(() => setShareCopied(false), 2000);
+  }
+
+  async function handleCopyShareUrl() {
+    if (!shareUrl) return;
+    await navigator.clipboard.writeText(shareUrl);
+    setShareCopied(true);
+    setTimeout(() => setShareCopied(false), 2000);
   }
 
   return (
@@ -186,6 +217,54 @@ export function ReflectionCompanion({
               <Download className="size-3.5" />
               Download PDF
             </button>
+            <button
+              type="button"
+              disabled={shareLoading}
+              onClick={() => void handleShare()}
+              className={`${exportButtonClass} print:hidden`}
+            >
+              {shareLoading ? (
+                <Loader2 className="size-3.5 animate-spin" />
+              ) : shareCopied ? (
+                <Check className="size-3.5" />
+              ) : (
+                <Share2 className="size-3.5" />
+              )}
+              {shareCopied ? "Copied" : "Share"}
+            </button>
+            {shareUrl && (
+              <div className="flex w-full flex-wrap items-center gap-2 print:hidden">
+                <input
+                  type="text"
+                  readOnly
+                  value={shareUrl}
+                  aria-label="Share link"
+                  className="min-w-0 flex-1 rounded-lg border border-[rgba(154,124,46,0.2)] bg-white px-3 py-1.5 text-[12px] text-[#3d4f4c]"
+                />
+                <button
+                  type="button"
+                  onClick={() => void handleCopyShareUrl()}
+                  className={exportButtonClass}
+                >
+                  {shareCopied ? (
+                    <>
+                      <Check className="size-3.5" />
+                      Copied
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="size-3.5" />
+                      Copy link
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
+            {shareError && (
+              <p role="alert" className="text-[12px] text-destructive print:hidden">
+                {shareError}
+              </p>
+            )}
             <Button
               type="button"
               variant="outline"
