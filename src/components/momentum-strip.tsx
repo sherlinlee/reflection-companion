@@ -6,16 +6,16 @@ import { cardClass, sectionLabelClass } from "@/lib/ui-classes";
 import { cn } from "@/lib/utils";
 
 type Props = {
-  observations: { created_at: string }[];
+  observations: { observed_at: string }[];
 };
 
 function toDateKey(date: Date): string {
   return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
 }
 
-function calcStreak(observations: { created_at: string }[]): number {
+function calcStreak(observations: { observed_at: string }[]): number {
   const daysWithObs = new Set(
-    observations.map((o) => toDateKey(new Date(o.created_at))),
+    observations.map((o) => toDateKey(new Date(o.observed_at))),
   );
 
   let streak = 0;
@@ -30,9 +30,9 @@ function calcStreak(observations: { created_at: string }[]): number {
   return streak;
 }
 
-function getWeekdayDots(observations: { created_at: string }[]) {
+function getWeekdayDots(observations: { observed_at: string }[]) {
   const daySet = new Set(
-    observations.map((o) => toDateKey(new Date(o.created_at))),
+    observations.map((o) => toDateKey(new Date(o.observed_at))),
   );
 
   const now = new Date();

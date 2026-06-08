@@ -9,7 +9,7 @@ import type { Child, ChildReflection } from "@/lib/types";
 export type PortfolioObservation = {
   id: string;
   observation_text: string;
-  created_at: string;
+  observed_at: string;
   imageSignedUrl: string | null;
 };
 
@@ -59,10 +59,10 @@ export function ChildPortfolioPrint({
           {observations.map((obs) => (
             <article key={obs.id} className="portfolio-print-entry">
               <time
-                dateTime={obs.created_at}
+                dateTime={obs.observed_at}
                 className="portfolio-print-date"
               >
-                {new Date(obs.created_at).toLocaleDateString(undefined, {
+                {new Date(obs.observed_at).toLocaleDateString(undefined, {
                   dateStyle: "long",
                 })}
               </time>

@@ -11,6 +11,7 @@ import { createClient } from "@/lib/supabase/server";
 export type CreateObservationInput = {
   child_id: string;
   observation_text: string;
+  observed_at?: string;
   image_url?: string;
   audio_url?: string;
   additional_child_ids?: string[];
@@ -44,9 +45,17 @@ function parseMediaPath(
   return raw;
 }
 
+function parseObservedAt(raw: string | undefined): string {
+  const observed_at_raw = String(raw ?? "").trim();
+  return observed_at_raw
+    ? new Date(observed_at_raw).toISOString()
+    : new Date().toISOString();
+}
+
 function buildObservationInsert(
   child_id: string,
   observation_text: string,
+  observed_at: string,
   image_url: string | null,
   audio_url: string | null,
   id?: string,
@@ -55,9 +64,10 @@ function buildObservationInsert(
     id?: string;
     child_id: string;
     observation_text: string;
+    observed_at: string;
     image_url?: string;
     audio_url?: string;
-  } = { child_id, observation_text };
+  } = { child_id, observation_text, observed_at };
   if (id) row.id = id;
   if (image_url) row.image_url = image_url;
   if (audio_url) row.audio_url = audio_url;
@@ -106,8 +116,16 @@ export async function createObservation(
     return { error: "invalid_media", reason: "path_validation_failed" };
   }
 
+  const observed_at = parseObservedAt(input.observed_at);
+
   const inserts = allChildIds.map((child_id) =>
-    buildObservationInsert(child_id, observation_text, image_url, audio_url),
+    buildObservationInsert(
+      child_id,
+      observation_text,
+      observed_at,
+      image_url,
+      audio_url,
+    ),
   );
 
   console.log("inserting observations:", inserts);
@@ -131,6 +149,9 @@ export async function createGroupObservation(formData: FormData) {
 
   const observation_text = String(formData.get("observation_text") ?? "").trim();
   const childIds = formData.getAll("child_ids").map(String).filter(Boolean);
+  const observed_at = parseObservedAt(
+    String(formData.get("observed_at") ?? ""),
+  );
 
   if (!observation_text || childIds.length === 0) {
     redirect("/children");
@@ -144,6 +165,7 @@ export async function createGroupObservation(formData: FormData) {
     id: primaryId,
     child_id: primaryChildId,
     observation_text,
+    observed_at,
   });
 
   if (primaryError) {
@@ -155,6 +177,7 @@ export async function createGroupObservation(formData: FormData) {
     const extraInserts = extraChildIds.map((child_id) => ({
       child_id,
       observation_text,
+      observed_at,
     }));
     const { error: extraError } = await supabase
       .from("observations")

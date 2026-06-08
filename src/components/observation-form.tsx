@@ -269,10 +269,16 @@ export function ObservationForm({ childId, others }: Props) {
       .map(String)
       .filter(Boolean);
 
+    const observed_at_raw = String(formData.get("observed_at") ?? "");
+    const observed_at = observed_at_raw
+      ? new Date(observed_at_raw).toISOString()
+      : new Date().toISOString();
+
     try {
       const result = await createObservation({
         child_id: childId,
         observation_text,
+        observed_at,
         image_url: image_url ?? undefined,
         audio_url: audio_url ?? undefined,
         additional_child_ids: additionalChildIds,
@@ -433,6 +439,23 @@ export function ObservationForm({ childId, others }: Props) {
       <p className="text-[12px] text-[#8a9490]">
         Richer observations lead to richer reflections.
       </p>
+
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="observed_at" className="text-[12px] font-medium text-[#3d4f4c]">
+          Date of observation
+        </label>
+        <input
+          type="date"
+          id="observed_at"
+          name="observed_at"
+          defaultValue={new Date().toISOString().split("T")[0]}
+          disabled={isBusy}
+          className={fieldClass}
+        />
+        <p className="text-[11px] text-[#8a9490]">
+          Defaults to today — change if documenting a past moment.
+        </p>
+      </div>
 
       <div className="border-t border-[rgba(154,124,46,0.1)] pt-4">
         <p className={`${sectionLabelClass} mb-1`}>Attach media</p>

@@ -37,9 +37,9 @@ export default async function ChildPage({
 
   const { data: observations } = await supabase
     .from("observations")
-    .select("id, observation_text, created_at, image_url")
+    .select("id, observation_text, observed_at, image_url")
     .eq("child_id", childId)
-    .order("created_at", { ascending: false });
+    .order("observed_at", { ascending: false });
 
   const obsList = (observations ?? []) as Observation[];
 
@@ -47,12 +47,12 @@ export default async function ChildPage({
     [...obsList]
       .sort(
         (a, b) =>
-          new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+          new Date(a.observed_at).getTime() - new Date(b.observed_at).getTime(),
       )
       .map(async (obs) => ({
         id: obs.id,
         observation_text: obs.observation_text,
-        created_at: obs.created_at,
+        observed_at: obs.observed_at,
         imageSignedUrl: obs.image_url
           ? await getSignedUrl(obs.image_url)
           : null,

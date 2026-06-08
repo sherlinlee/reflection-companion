@@ -25,25 +25,25 @@ export default async function ChildrenPage() {
   if (list.length > 0) {
     const { data: allObs } = await supabase
       .from("observations")
-      .select("child_id, created_at")
+      .select("child_id, observed_at")
       .in("child_id", list.map((c) => c.id))
-      .order("created_at", { ascending: false });
+      .order("observed_at", { ascending: false });
     for (const obs of allObs ?? []) {
       countMap[obs.child_id] = (countMap[obs.child_id] ?? 0) + 1;
-      if (!lastObsMap[obs.child_id]) lastObsMap[obs.child_id] = obs.created_at;
+      if (!lastObsMap[obs.child_id]) lastObsMap[obs.child_id] = obs.observed_at;
     }
   }
 
-  let weekObs: { created_at: string }[] = [];
+  let weekObs: { observed_at: string }[] = [];
   if (list.length > 0) {
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 6);
 
     const { data: weekData } = await supabase
       .from("observations")
-      .select("created_at")
+      .select("observed_at")
       .in("child_id", list.map((c) => c.id))
-      .gte("created_at", weekAgo.toISOString());
+      .gte("observed_at", weekAgo.toISOString());
 
     weekObs = weekData ?? [];
   }

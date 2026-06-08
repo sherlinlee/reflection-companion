@@ -17,7 +17,7 @@ type Props = {
   childId: string;
   childName: string;
   observationText: string;
-  createdAt: string;
+  observedAt: string;
   imageUrl?: string | null;
   audioUrl?: string | null;
 };
@@ -27,7 +27,7 @@ export function ObservationSettings({
   childId,
   childName,
   observationText,
-  createdAt,
+  observedAt,
   imageUrl,
   audioUrl,
 }: Props) {
@@ -118,10 +118,10 @@ export function ObservationSettings({
           )}
 
           <time
-            dateTime={createdAt}
+            dateTime={observedAt}
             className="mt-4 block text-xs text-muted-foreground"
           >
-            {new Date(createdAt).toLocaleString("en", {
+            {new Date(observedAt).toLocaleString("en", {
               dateStyle: "medium",
               timeStyle: "short",
             })}

@@ -47,9 +47,9 @@ export async function POST(request: Request) {
 
   const { data: observations } = await supabase
     .from("observations")
-    .select("observation_text, created_at")
+    .select("observation_text, observed_at")
     .eq("child_id", childId)
-    .order("created_at", { ascending: true })
+    .order("observed_at", { ascending: true })
     .limit(MAX_OBSERVATIONS);
 
   const obsList = observations ?? [];
@@ -71,7 +71,7 @@ export async function POST(request: Request) {
 
   const documentation = obsList
     .map((o, i) => {
-      const date = new Date(o.created_at).toLocaleDateString("en", {
+      const date = new Date(o.observed_at).toLocaleDateString("en", {
         dateStyle: "medium",
       });
       return `Entry ${i + 1} (${date}):\n${o.observation_text}`;

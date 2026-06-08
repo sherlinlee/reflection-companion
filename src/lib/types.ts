@@ -15,6 +15,7 @@ export type Observation = {
   image_url: string | null;
   /** Supabase Storage object path (not a public URL). */
   audio_url: string | null;
+  observed_at: string;
   created_at: string;
 };
 

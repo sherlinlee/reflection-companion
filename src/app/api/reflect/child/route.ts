@@ -51,9 +51,9 @@ export async function POST(request: Request) {
 
   const { data: observations, error: obsError } = await supabase
     .from("observations")
-    .select("observation_text, created_at")
+    .select("observation_text, observed_at")
     .eq("child_id", childId)
-    .order("created_at", { ascending: true });
+    .order("observed_at", { ascending: true });
 
   if (obsError) {
     return NextResponse.json({ error: obsError.message }, { status: 500 });
@@ -76,7 +76,7 @@ export async function POST(request: Request) {
     totalChars += text.length;
     entries.push({
       index: i + 1,
-      date: new Date(obsList[i].created_at).toLocaleDateString(undefined, {
+      date: new Date(obsList[i].observed_at).toLocaleDateString(undefined, {
         dateStyle: "medium",
       }),
       text,

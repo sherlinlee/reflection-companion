@@ -32,7 +32,7 @@ export default async function ObservationPage({
 
   const { data: obs, error: obsError } = await supabase
     .from("observations")
-    .select("id, child_id, observation_text, image_url, audio_url, created_at")
+    .select("id, child_id, observation_text, image_url, audio_url, observed_at")
     .eq("id", observationId)
     .maybeSingle();
 
@@ -122,7 +122,7 @@ export default async function ObservationPage({
           childId={row.child_id}
           childName={c.name}
           observationText={row.observation_text}
-          createdAt={row.created_at}
+          observedAt={row.observed_at}
           imageUrl={imageSignedUrl}
           audioUrl={audioSignedUrl}
         />
@@ -132,7 +132,7 @@ export default async function ObservationPage({
           initialReflection={reflection}
           observationText={row.observation_text}
           childName={c.name}
-          createdAt={row.created_at}
+          observedAt={row.observed_at}
         />
       </PageShell>
     </>

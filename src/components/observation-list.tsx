@@ -69,10 +69,10 @@ export function ObservationList({ observations }: Props) {
                       {obs.observation_text}
                     </p>
                     <time
-                      dateTime={obs.created_at}
+                      dateTime={obs.observed_at}
                       className="mt-1 block text-[11px] text-[#8a9490]"
                     >
-                      {new Date(obs.created_at).toLocaleDateString(undefined, {
+                      {new Date(obs.observed_at).toLocaleDateString(undefined, {
                         dateStyle: "medium",
                       })}
                     </time>

@@ -27,7 +27,7 @@ export default async function SharePage({
       `
       id,
       observation_text,
-      created_at,
+      observed_at,
       children ( name, class_name ),
       reflections ( patterns, questions, connections, created_at )
     `,
@@ -67,10 +67,10 @@ export default async function SharePage({
           <p className="mt-1 text-[13px] text-[#8a9490]">{child.class_name}</p>
         )}
         <time
-          dateTime={observation.created_at}
+          dateTime={observation.observed_at}
           className="mt-2 block text-[12px] text-[#8a9490]"
         >
-          {new Date(observation.created_at).toLocaleDateString(undefined, {
+          {new Date(observation.observed_at).toLocaleDateString(undefined, {
             dateStyle: "long",
           })}
         </time>

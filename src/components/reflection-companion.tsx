@@ -15,13 +15,13 @@ export function ReflectionCompanion({
   initialReflection,
   observationText,
   childName,
-  createdAt,
+  observedAt,
 }: {
   observationId: string;
   initialReflection: Reflection | null;
   observationText: string;
   childName: string;
-  createdAt: string;
+  observedAt: string;
 }) {
   const router = useRouter();
   const [reflection, setReflection] = useState(initialReflection);
@@ -64,7 +64,7 @@ export function ReflectionCompanion({
   }
 
   function buildPlainText(r: Reflection) {
-    const date = new Date(createdAt).toLocaleDateString("en", {
+    const date = new Date(observedAt).toLocaleDateString("en", {
       dateStyle: "long",
     });
     const lines: string[] = [
@@ -286,7 +286,7 @@ export function ReflectionCompanion({
           {/* ── Print-only header (hidden on screen) ── */}
           <div className="print-only hidden">
             <p className="print-meta">
-              {childName} · {new Date(createdAt).toLocaleDateString("en", { dateStyle: "long" })}
+              {childName} · {new Date(observedAt).toLocaleDateString("en", { dateStyle: "long" })}
             </p>
             <p className="print-brand">Spark by Sher — Documentation Reflection Companion</p>
           </div>
