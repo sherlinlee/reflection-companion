@@ -1,24 +1,16 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Plus, Users } from "lucide-react";
+import { Plus } from "lucide-react";
 
 import { createGroupObservation } from "@/app/actions/observations";
 import { AddIndividualForm } from "@/components/add-individual-form";
 import { AppHeader } from "@/components/app-header";
 import { PageShell } from "@/components/page-shell";
+import { StudentList } from "@/components/student-list";
 import { Button } from "@/components/ui/button";
 import { hasSupabaseEnv } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 import type { Child } from "@/lib/types";
-import {
-  avatarClass,
-  cardClass,
-  fieldClass,
-  linkArrowClass,
-  linkRowClass,
-  listPanelClass,
-  sectionLabelClass,
-} from "@/lib/ui-classes";
+import { fieldClass, sectionLabelClass } from "@/lib/ui-classes";
 
 export default async function ChildrenPage() {
   if (!hasSupabaseEnv()) redirect("/setup");
@@ -103,43 +95,7 @@ export default async function ChildrenPage() {
           </section>
         )}
 
-        {/* ── Your students ── */}
-        <section>
-          <h2 className={`${sectionLabelClass} mb-4 flex items-center gap-2`}>
-            <Users className="size-4" />
-            Your students
-          </h2>
-          {list.length === 0 ? (
-            <div className={`${cardClass} text-center text-sm text-muted-foreground`}>
-              No students yet. Add one above to begin documenting.
-            </div>
-          ) : (
-            <ul className={listPanelClass}>
-              {list.map((child) => (
-                <li key={child.id} className="border-b border-[rgba(154,124,46,0.08)] last:border-0">
-                  <Link href={`/children/${child.id}`} className={linkRowClass}>
-                    <span className={avatarClass}>
-                      {child.name.charAt(0).toUpperCase()}
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block font-medium text-[#0F1A18]">
-                        {child.name}
-                      </span>
-                      <span className="block text-xs text-[#7A9490]">
-                        {child.class_name
-                          ? `${child.class_name}${child.age != null ? ` · Age ${child.age}` : ""}`
-                          : child.age != null
-                            ? `Age ${child.age}`
-                            : "View observations"}
-                      </span>
-                    </span>
-                    <span className={linkArrowClass}>→</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
+        <StudentList students={list} />
 
       </PageShell>
     </>
