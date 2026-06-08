@@ -1,4 +1,8 @@
-import { WHISPER_MAX_BYTES } from "@/lib/observation-media";
+import {
+  audioFileExtension,
+  normalizeAudioMimeType,
+  WHISPER_MAX_BYTES,
+} from "@/lib/observation-media";
 
 export async function transcribeAudioFile(
   file: File,
@@ -10,8 +14,15 @@ export async function transcribeAudioFile(
     };
   }
 
+  const mimeType = normalizeAudioMimeType(file.type || "audio/webm");
+  const ext = audioFileExtension(mimeType);
+  const payload =
+    file.type === mimeType
+      ? file
+      : new File([file], file.name || `recording.${ext}`, { type: mimeType });
+
   const formData = new FormData();
-  formData.append("audio", file);
+  formData.append("audio", payload);
 
   const response = await fetch("/api/transcribe", {
     method: "POST",

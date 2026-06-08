@@ -1,7 +1,11 @@
 import OpenAI, { toFile } from "openai";
 import { NextResponse } from "next/server";
 
-import { ALLOWED_AUDIO_TYPES, WHISPER_MAX_BYTES } from "@/lib/observation-media";
+import {
+  ALLOWED_AUDIO_TYPES,
+  normalizeAudioMimeType,
+  WHISPER_MAX_BYTES,
+} from "@/lib/observation-media";
 import { createClient } from "@/lib/supabase/server";
 
 export async function POST(request: Request) {
@@ -40,15 +44,18 @@ export async function POST(request: Request) {
     );
   }
 
-  const type = audio.type || "application/octet-stream";
+  const type = normalizeAudioMimeType(audio.type || "application/octet-stream");
   if (!ALLOWED_AUDIO_TYPES.has(type)) {
-    return NextResponse.json({ error: "Unsupported audio format." }, { status: 400 });
+    return NextResponse.json(
+      { error: `Unsupported audio format (${audio.type || "unknown"}).` },
+      { status: 400 },
+    );
   }
 
   try {
     const openai = new OpenAI({ apiKey });
     const buffer = Buffer.from(await audio.arrayBuffer());
-    const file = await toFile(buffer, audio.name, { type: audio.type });
+    const file = await toFile(buffer, audio.name || "recording.webm", { type });
 
     const transcription = await openai.audio.transcriptions.create({
       file,

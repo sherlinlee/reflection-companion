@@ -12,7 +12,9 @@ import {
   uploadObservationMediaFromBrowser,
 } from "@/lib/observation-media-client";
 import {
+  audioFileExtension,
   MEDIA_UPLOAD_ERROR_MESSAGES,
+  normalizeAudioMimeType,
   validateAudioFile,
 } from "@/lib/observation-media";
 import { appendTranscript, transcribeAudioFile } from "@/lib/transcribe-audio";
@@ -102,14 +104,22 @@ export function ObservationForm({ childId, others }: Props) {
 
   async function stopRecordingAndTranscribe() {
     const recorder = mediaRecorderRef.current;
-    if (!recorder || recorder.state === "inactive") return;
+    if (!recorder || recorder.state === "inactive") {
+      setRecording(false);
+      setTranscribeNote("No audio was captured. Try recording again.");
+      return;
+    }
 
     setRecording(false);
 
     const blob = await new Promise<Blob>((resolve) => {
       recorder.onstop = () => {
-        resolve(new Blob(chunksRef.current, { type: recorder.mimeType || "audio/webm" }));
+        const mime = normalizeAudioMimeType(recorder.mimeType || "audio/webm");
+        resolve(new Blob(chunksRef.current, { type: mime }));
       };
+      if (recorder.state === "recording") {
+        recorder.requestData();
+      }
       recorder.stop();
       recorder.stream.getTracks().forEach((track) => track.stop());
     });
@@ -117,11 +127,22 @@ export function ObservationForm({ childId, others }: Props) {
     mediaRecorderRef.current = null;
     chunksRef.current = [];
 
+    if (blob.size === 0) {
+      setTranscribeNote(
+        "Recording was empty. Hold Record, speak for a few seconds, then tap Stop.",
+      );
+      return;
+    }
+
     setTranscribing(true);
     setTranscribeNote(null);
 
-    const ext = blob.type.includes("mp4") ? "m4a" : "webm";
-    const file = new File([blob], `recording.${ext}`, { type: blob.type || "audio/webm" });
+    const mimeType = normalizeAudioMimeType(blob.type || "audio/webm");
+    const file = new File(
+      [blob],
+      `recording.${audioFileExtension(mimeType)}`,
+      { type: mimeType },
+    );
     const result = await transcribeAudioFile(file);
 
     setTranscribing(false);
@@ -162,7 +183,7 @@ export function ObservationForm({ childId, others }: Props) {
       };
 
       mediaRecorderRef.current = recorder;
-      recorder.start();
+      recorder.start(250);
       setRecording(true);
       textareaRef.current?.focus();
     } catch {
@@ -378,7 +399,20 @@ export function ObservationForm({ childId, others }: Props) {
       {transcribing && (
         <p className="flex items-center gap-2 text-[12px] text-[#9a7c2e]">
           <Loader2 className="size-3.5 animate-spin" />
-          Transcribing voice memo…
+          Transcribing…
+        </p>
+      )}
+      {transcribeNote && (
+        <p
+          role={transcribeNote.includes("transcribed") ? undefined : "alert"}
+          className={cn(
+            "text-[12px]",
+            transcribeNote.includes("transcribed")
+              ? "text-[#8a9490]"
+              : "rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-red-800",
+          )}
+        >
+          {transcribeNote}
         </p>
       )}
 
@@ -394,9 +428,6 @@ export function ObservationForm({ childId, others }: Props) {
           Files upload directly to Supabase Storage; only paths are saved on the
           observation.
         </p>
-        {transcribeNote && (
-          <p className="mb-3 text-[12px] text-[#8a9490]">{transcribeNote}</p>
-        )}
         {errorMessage && (
           <p
             role="alert"

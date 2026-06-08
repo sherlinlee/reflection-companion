@@ -27,6 +27,24 @@ export const ALLOWED_AUDIO_TYPES = new Set([
   "audio/m4a",
 ]);
 
+/** Browser recorders often send `audio/webm;codecs=opus` — normalize for Whisper. */
+export function normalizeAudioMimeType(type: string): string {
+  const base = type.toLowerCase().split(";")[0].trim();
+  if (base === "audio/x-m4a") return "audio/m4a";
+  if (ALLOWED_AUDIO_TYPES.has(base)) return base;
+  if (base.startsWith("audio/webm")) return "audio/webm";
+  return base;
+}
+
+export function audioFileExtension(mimeType: string): string {
+  const type = normalizeAudioMimeType(mimeType);
+  if (type === "audio/mp4" || type === "audio/m4a" || type === "audio/x-m4a") {
+    return "m4a";
+  }
+  if (type === "audio/mpeg") return "mp3";
+  return "webm";
+}
+
 export const MEDIA_UPLOAD_ERROR_MESSAGES: Record<string, string> = {
   image_too_large: "Photo must be 10 MB or smaller.",
   audio_too_large: "Voice memo must be 50 MB or smaller.",
@@ -49,7 +67,7 @@ export function validateImageFile(file: File): string | null {
 
 export function validateAudioFile(file: File): string | null {
   if (file.size > MAX_AUDIO_BYTES) return "audio_too_large";
-  const type = file.type || "application/octet-stream";
+  const type = normalizeAudioMimeType(file.type || "application/octet-stream");
   if (!ALLOWED_AUDIO_TYPES.has(type)) return "audio_type";
   return null;
 }

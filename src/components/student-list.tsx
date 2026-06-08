@@ -72,112 +72,192 @@ export function StudentList({
           No students yet. Add one above to begin documenting.
         </div>
       ) : (
-        <ul className={listPanelClass}>
-          {students.map((child) => {
-            const isLoading = loadingId === child.id;
-            const count = countMap[child.id] ?? 0;
-            const lastObs = lastObsMap[child.id];
-            const equity = getEquityState(count, lastObs);
-            const hasNudge = equity.type === "nudge";
-            const isGroupSelected = groupSelect?.selectedIds.has(child.id) ?? false;
+        <>
+          {groupSelect && (
+            <p className="mb-2 text-[11px] text-[#8a9490]">
+              Tap a student to open their profile. Check to include in group
+              observation.
+            </p>
+          )}
+          <ul className={listPanelClass}>
+            {students.map((child) => {
+              const isLoading = loadingId === child.id;
+              const count = countMap[child.id] ?? 0;
+              const lastObs = lastObsMap[child.id];
+              const equity = getEquityState(count, lastObs);
+              const hasNudge = equity.type === "nudge";
+              const isGroupSelected =
+                groupSelect?.selectedIds.has(child.id) ?? false;
 
-            return (
-              <li
-                key={child.id}
-                className="border-b border-[rgba(154,124,46,0.08)] last:border-0"
-              >
-                <div
+              const rowTint = cn(
+                hasNudge && "bg-[rgba(252,235,235,0.35)]",
+                groupSelect && isGroupSelected && "bg-[#faf4e6]/60",
+              );
+
+              const avatar = (
+                <span className={avatarClass}>
+                  {child.name.charAt(0).toUpperCase()}
+                </span>
+              );
+
+              const details = (
+                <span className="min-w-0 flex-1">
+                  <span className="block font-medium text-[#0F1A18]">
+                    {child.name}
+                  </span>
+                  <span className="block text-xs text-[#7A9490]">
+                    {child.class_name
+                      ? `${child.class_name}${child.age != null ? ` · Age ${child.age}` : ""}`
+                      : child.age != null
+                        ? `Age ${child.age}`
+                        : "View observations"}
+                  </span>
+                </span>
+              );
+
+              const equityDisplay = (
+                <span className="flex shrink-0 flex-col items-end gap-0.5">
+                  {equity.type === "nudge" ? (
+                    <span className="rounded bg-[#fcebeb] px-1.5 py-0.5 text-[10px] font-medium text-[#a32d2d]">
+                      {equity.message}
+                    </span>
+                  ) : (
+                    <>
+                      <span className="flex gap-[3px]">
+                        {Array.from({ length: MAX_DOTS }, (_, i) => (
+                          <span
+                            key={i}
+                            className={cn(
+                              "size-1.5 rounded-full",
+                              i < equity.filled
+                                ? "bg-[#9a7c2e]"
+                                : "bg-[rgba(154,124,46,0.15)]",
+                            )}
+                          />
+                        ))}
+                      </span>
+                      <span className="text-[10px] text-[#8a9490]">
+                        {count}{" "}
+                        {count === 1 ? "observation" : "observations"}
+                      </span>
+                    </>
+                  )}
+                </span>
+              );
+
+              const arrowLink = (
+                <Link
+                  href={`/children/${child.id}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setLoadingId(child.id);
+                  }}
+                  aria-label={`Open ${child.name}'s profile`}
+                  aria-busy={isLoading}
                   className={cn(
-                    linkRowClass,
-                    "transition-opacity duration-150",
-                    hasNudge && "bg-[rgba(252,235,235,0.35)]",
-                    isGroupSelected && "bg-[#faf4e6]/60",
+                    linkArrowClass,
+                    "inline-flex min-w-[2rem] shrink-0 items-center justify-center rounded-md transition-colors hover:bg-[#faf4e6]/80",
+                    isLoading && "pointer-events-none opacity-60",
                   )}
                 >
-                  {groupSelect && (
-                    <label
-                      className="flex shrink-0 cursor-pointer items-center py-1"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={isGroupSelected}
-                        onChange={() => groupSelect.onToggle(child.id)}
-                        aria-label={`Include ${child.name} in group observation`}
-                        className="size-4 rounded border-[rgba(154,124,46,0.35)] text-[#9a7c2e] focus:ring-[#9a7c2e]/30"
-                      />
-                    </label>
+                  {isLoading ? (
+                    <Loader2 className="size-3.5 animate-spin text-[#c8a85a]" />
+                  ) : (
+                    "→"
                   )}
-                  <Link
-                    href={`/children/${child.id}`}
-                    onClick={() => setLoadingId(child.id)}
-                    aria-busy={isLoading}
-                    className={cn(
-                      "flex min-w-0 flex-1 items-center gap-[0.875rem]",
-                      isLoading && "pointer-events-none opacity-60",
-                    )}
-                  >
-                  <span className={avatarClass}>
-                    {child.name.charAt(0).toUpperCase()}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block font-medium text-[#0F1A18]">
-                      {child.name}
-                    </span>
-                    <span className="block text-xs text-[#7A9490]">
-                      {child.class_name
-                        ? `${child.class_name}${child.age != null ? ` · Age ${child.age}` : ""}`
-                        : child.age != null
-                          ? `Age ${child.age}`
-                          : "View observations"}
-                    </span>
-                  </span>
+                </Link>
+              );
 
-                  <span className="flex shrink-0 flex-col items-end gap-0.5">
-                    {equity.type === "nudge" ? (
-                      <span className="rounded bg-[#fcebeb] px-1.5 py-0.5 text-[10px] font-medium text-[#a32d2d]">
-                        {equity.message}
+              return (
+                <li
+                  key={child.id}
+                  className="border-b border-[rgba(154,124,46,0.08)] last:border-0"
+                >
+                  {groupSelect ? (
+                    <div
+                      className={cn(
+                        linkRowClass,
+                        "transition-opacity duration-150",
+                        rowTint,
+                      )}
+                    >
+                      <label
+                        className={cn(
+                          "group flex shrink-0 cursor-pointer items-center rounded-full border border-[rgba(154,124,46,0.2)] bg-white px-2 py-1.5 transition-colors",
+                          isGroupSelected &&
+                            "border-[#9a7c2e] bg-[#faf4e6] text-[#9a7c2e]",
+                        )}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isGroupSelected}
+                          onChange={() => groupSelect.onToggle(child.id)}
+                          aria-label={`Include ${child.name} in group observation`}
+                          className="sr-only"
+                        />
+                        <span
+                          className={cn(
+                            "flex size-4 items-center justify-center rounded-full border text-[10px] transition-colors",
+                            isGroupSelected
+                              ? "border-[#9a7c2e] bg-[#9a7c2e] text-white"
+                              : "border-[rgba(154,124,46,0.3)] text-transparent",
+                          )}
+                        >
+                          ✓
+                        </span>
+                      </label>
+
+                      <Link
+                        href={`/children/${child.id}`}
+                        onClick={() => setLoadingId(child.id)}
+                        aria-busy={isLoading}
+                        className={cn(
+                          "flex min-w-0 flex-1 items-center gap-[0.875rem]",
+                          isLoading && "pointer-events-none opacity-60",
+                        )}
+                      >
+                        {avatar}
+                        {details}
+                        {equityDisplay}
+                      </Link>
+
+                      {arrowLink}
+                    </div>
+                  ) : (
+                    <Link
+                      href={`/children/${child.id}`}
+                      onClick={() => setLoadingId(child.id)}
+                      aria-busy={isLoading}
+                      className={cn(
+                        linkRowClass,
+                        "transition-opacity duration-150",
+                        rowTint,
+                        isLoading && "pointer-events-none opacity-60",
+                      )}
+                    >
+                      {avatar}
+                      {details}
+                      {equityDisplay}
+                      <span
+                        className={cn(
+                          linkArrowClass,
+                          "inline-flex min-w-[1rem] items-center justify-center",
+                        )}
+                      >
+                        {isLoading ? (
+                          <Loader2 className="size-3.5 animate-spin text-[#c8a85a]" />
+                        ) : (
+                          "→"
+                        )}
                       </span>
-                    ) : (
-                      <>
-                        <span className="flex gap-[3px]">
-                          {Array.from({ length: MAX_DOTS }, (_, i) => (
-                            <span
-                              key={i}
-                              className={cn(
-                                "size-1.5 rounded-full",
-                                i < equity.filled
-                                  ? "bg-[#9a7c2e]"
-                                  : "bg-[rgba(154,124,46,0.15)]",
-                              )}
-                            />
-                          ))}
-                        </span>
-                        <span className="text-[10px] text-[#8a9490]">
-                          {count} {count === 1 ? "observation" : "observations"}
-                        </span>
-                      </>
-                    )}
-                  </span>
-
-                  <span
-                    className={cn(
-                      linkArrowClass,
-                      "inline-flex min-w-[1rem] items-center justify-center",
-                    )}
-                  >
-                    {isLoading ? (
-                      <Loader2 className="size-3.5 animate-spin text-[#c8a85a]" />
-                    ) : (
-                      "→"
-                    )}
-                  </span>
-                  </Link>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
+                    </Link>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </>
       )}
     </section>
   );
