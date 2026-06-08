@@ -5,6 +5,7 @@ import { AppHeader } from "@/components/app-header";
 import { MomentumStrip } from "@/components/momentum-strip";
 import { PageShell } from "@/components/page-shell";
 import { StudentsAndGroupObservation } from "@/components/students-and-group-observation";
+import { acceptCollaboratorInvites } from "@/lib/accept-collaborator-invites";
 import { hasSupabaseEnv } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 import type { Child } from "@/lib/types";
@@ -13,6 +14,14 @@ export default async function ChildrenPage() {
   if (!hasSupabaseEnv()) redirect("/setup");
 
   const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) {
+    await acceptCollaboratorInvites(supabase, user.email, user.id);
+  }
+
   const { data: children } = await supabase
     .from("children")
     .select("*")

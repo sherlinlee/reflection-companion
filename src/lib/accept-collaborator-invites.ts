@@ -9,24 +9,40 @@ export async function acceptCollaboratorInvites(
 
   const normalized = email.trim().toLowerCase();
 
-  const { data: invites } = await supabase
+  const { data: invites, error: invitesError } = await supabase
     .from("educator_invites")
     .select("id, inviter_id")
-    .ilike("invitee_email", normalized)
+    .eq("invitee_email", normalized)
     .is("accepted_at", null);
 
-  for (const invite of invites ?? []) {
-    await supabase.from("educator_collaborators").upsert(
-      {
-        owner_id: invite.inviter_id,
-        collaborator_id: userId,
-      },
-      { onConflict: "owner_id,collaborator_id" },
-    );
+  if (invitesError) {
+    console.error("acceptCollaboratorInvites: load invites failed", invitesError);
+    return;
+  }
 
-    await supabase
+  for (const invite of invites ?? []) {
+    const { error: linkError } = await supabase
+      .from("educator_collaborators")
+      .upsert(
+        {
+          owner_id: invite.inviter_id,
+          collaborator_id: userId,
+        },
+        { onConflict: "owner_id,collaborator_id" },
+      );
+
+    if (linkError) {
+      console.error("acceptCollaboratorInvites: link failed", linkError);
+      continue;
+    }
+
+    const { error: acceptError } = await supabase
       .from("educator_invites")
       .update({ accepted_at: new Date().toISOString() })
       .eq("id", invite.id);
+
+    if (acceptError) {
+      console.error("acceptCollaboratorInvites: mark accepted failed", acceptError);
+    }
   }
 }

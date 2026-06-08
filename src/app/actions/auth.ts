@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 
+import { acceptCollaboratorInvites } from "@/lib/accept-collaborator-invites";
 import { getRequestAppUrl } from "@/lib/app-url";
 import { createClient } from "@/lib/supabase/server";
 
@@ -12,6 +13,13 @@ export async function signIn(formData: FormData) {
 
   const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) return { error: error.message };
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) {
+    await acceptCollaboratorInvites(supabase, user.email, user.id);
+  }
 
   redirect("/children");
 }
