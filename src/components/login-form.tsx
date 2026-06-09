@@ -69,26 +69,6 @@ export function LoginForm() {
               </span>
             </p>
           </div>
-
-          <a
-            href="https://sparkbysher.onrender.com"
-            className={sparkToolCardClass}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <span className="spark-tool-card-label">Also from Spark by Sher</span>
-            <span className="spark-tool-card-title">Spark Provocation Tool</span>
-            <span className="spark-tool-card-desc">
-              Turn topics and classroom moments into provocations, inquiry
-              questions, and environment setups.
-            </span>
-            <span className="spark-tool-card-link">
-              Open sparkbysher.onrender.com{" "}
-              <span className="spark-tool-card-arrow" aria-hidden>
-                →
-              </span>
-            </span>
-          </a>
         </div>
 
         {error && (
@@ -209,6 +189,26 @@ export function LoginForm() {
             )}
           </Button>
         </form>
+
+        <a
+          href="https://sparkbysher.onrender.com"
+          className={sparkToolCardClass}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <span className="spark-tool-card-label">Also from Spark by Sher</span>
+          <span className="spark-tool-card-title">Spark Provocation Tool</span>
+          <span className="spark-tool-card-desc">
+            Turn topics and classroom moments into provocations, inquiry
+            questions, and environment setups.
+          </span>
+          <span className="spark-tool-card-link">
+            Open sparkbysher.onrender.com{" "}
+            <span className="spark-tool-card-arrow" aria-hidden>
+              →
+            </span>
+          </span>
+        </a>
 
         <p className="text-center text-xs text-[#7A9490]">
           Reggio-inspired · Inquiry-led ·{" "}
