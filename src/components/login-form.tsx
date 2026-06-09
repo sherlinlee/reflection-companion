@@ -77,7 +77,7 @@ export function LoginForm() {
             rel="noopener noreferrer"
           >
             <span className="spark-tool-card-label">Also from Spark by Sher</span>
-            <span className="spark-tool-card-title">Spark tool</span>
+            <span className="spark-tool-card-title">Spark Provocation Tool</span>
             <span className="spark-tool-card-desc">
               Turn topics and classroom moments into provocations, inquiry
               questions, and environment setups.
