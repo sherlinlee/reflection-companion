@@ -20,10 +20,17 @@ export const metadata: Metadata = {
   title: "Documentation Reflection Companion · Spark by Sher",
   description:
     "Help educators revisit children's documentation through multiple lenses—without replacing educator interpretation.",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Reflect",
+  },
 };
 
 export const viewport: Viewport = {
   colorScheme: "light",
+  themeColor: "#f7f4ef",
 };
 
 export default function RootLayout({
